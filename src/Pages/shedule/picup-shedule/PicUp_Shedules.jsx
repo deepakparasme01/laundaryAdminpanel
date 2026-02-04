@@ -1,0 +1,254 @@
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { changeStatus_Pickup_Shedule, editPickup_Shedules, getPicup_Shedules, } from "../../../apis/SuperAdmin";
+import { useNavigate } from "react-router-dom";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+// import { ProductModel } from "../../components/common/product-model/ProductModel";
+import { MdDelete, MdEdit } from "react-icons/md";
+import BreadcrumbsNav from "../../../components/common/BreadcrumbsNav/BreadcrumbsNav";
+import PageTitle from "../../../components/PageTitle/PageTitle";
+import { ProductTable } from "../../../components/common/Table/ProductTable";
+import DeleteModel from "../../../components/common/DeleteModel/DeleteModel";
+import { PickupSchedule_Model } from "../../../components/common/pickup-schedule-model/PickupSchedule_Model";
+
+export const PicUp_Shedules = () => {
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [sheduleList, setScheduleList] = useState([]);
+
+
+
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+
+    const columns = useMemo(
+        () => [
+
+            {
+                header: "Days", accessorKey: "day",
+                cell: (info) => (
+                    <strong className="capitalize">
+                        {info.getValue()}
+                    </strong>
+                ),
+            },
+            // {
+            //     header: "Thumbnail",
+            //     accessorKey: "image",
+            //     cell: (info) => (
+            //         <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+            //             <img src={`${IMG_BASE_URL}${info.getValue()}`} alt="avatar" width={40} style={{ borderRadius: "50%" }} className="w-full h-full object-cover" />
+            //         </div>
+            //     ),
+            // },
+            // { header: "Type", accessorKey: "type" },
+            { header: "Start Time", accessorKey: "start_time" },
+            { header: "End Time", accessorKey: "end_time" },
+
+            {
+                header: "Status", accessorKey: "is_closed",
+                size: 50,
+                cell: (info) => {
+                    const status = info.row.original.is_closed;
+
+                    const statusColor =
+                        status === 1
+                            ? "bg-green-100 text-green-600"
+                            : status === 0
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-red-100 text-red-600";
+
+                    return (
+                        <div
+                            className={`flex gap-1 justify-center items-center rounded-full px-2 py-1 cursor-pointer font-semibold text-[12px] capitalize ${statusColor}`}
+                            onClick={() => handleStatusToggle(info.row.original.id, status == 1 ? 0 : 1)}
+                        >
+                            {status == 1
+                                ? "Closed"
+                                : status == 0
+                                    ? "Open"
+                                    : "Deleted"}
+                        </div>
+                    );
+                },
+            },
+            {
+                header: "Action",
+                size: 100,
+                cell: ({ row }) => {
+                    return (
+                        <div className="flex gap-2 justify-start">
+                            <button
+                                className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-[#3d9bc7] text-white cursor-pointer hover:bg-[#02598e] whitespace-nowrap"
+                                onClick={() => {
+                                    const id = row.original.id
+                                    openEditModal(row.original)
+                                    // navigate(`/update_coupon/${id}`);
+                                }
+                                }
+                            >
+                                <MdEdit size={16} />
+                            </button>
+                            {/* <button
+                                className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-red-500 text-white cursor-pointer hover:bg-red-600 whitespace-nowrap"
+                                onClick={() =>
+                                    handleDelete(row.original.id)
+                                }
+                            >
+                                <MdDelete size={16} />
+                            </button> */}
+                        </div>
+                    );
+                },
+            },
+            // { header: "Age", accessorKey: "age" },
+            // { header: "Country", accessorKey: "country" },
+        ],
+        []
+    );
+
+
+    // const openAddModal = () => {
+    //     setMode("add");
+    //     setSelectedProduct(null);
+    //     setModalOpen(true);
+    // };
+
+
+    const openEditModal = (schedule_data) => {
+        setSelectedSchedule(schedule_data);
+        setModalOpen(true);
+    };
+    const fetchPickup_Shedule = async () => {
+        try {
+            setIsLoading(true);
+            const response = await getPicup_Shedules();
+
+            if (response?.status == 200) {
+                setScheduleList(response?.data?.schedule_list || []);
+                setIsLoading(false);
+            }
+            else if (response?.response?.data?.status == 401) {
+                toast.error(response?.response?.data?.message);
+                localStorage.removeItem("user_role");
+                localStorage.removeItem("laundary-token");
+                navigate("/");
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error("Error fetching pickup schedule list:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPickup_Shedule();
+    }, []);
+
+    // const closeDeleteModal = () => {
+    //     setShowDeleteModal(false);
+    //     setDeleteId(null);
+    // };
+    // const handleDelete = (id) => {
+    //     setDeleteId(id);
+    //     setShowDeleteModal(true);
+    // }
+    // const confirmDelete = () => {
+    //     const deletecoupon = async () => {
+    //         try {
+    //             setIsLoading(true);
+    //             const response = await deleteCoupon(deleteId);
+    //             if (response?.status == 200) {
+    //                 toast.success(response?.message);
+    //                 await fetchCoupons();
+    //                 closeDeleteModal();
+    //                 setIsLoading(false);
+    //             }
+    //         } catch (error) {
+    //             console.error("Error deleting category:", error);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     };
+    //     deletecoupon();
+    // }
+
+
+
+    const handleStatusToggle = async (id, newStatus) => {
+        try {
+            const response = await changeStatus_Pickup_Shedule({ is_closed: newStatus }, id);
+            if (response?.status == 200) {
+                toast.success(response?.message);
+                await fetchPickup_Shedule();
+            } else if (response?.response?.data?.status == 401) {
+                toast.error(response?.response?.data?.message);
+                localStorage.removeItem("user_role");
+                localStorage.removeItem("laundary-token");
+                navigate("/");
+                setIsLoading(false);
+            }
+
+        } catch (error) {
+            console.error("Error updating service status:", error);
+        }
+    }
+
+
+
+    const handleSubmit = async (data) => {
+        console.log("sheduledata", data)
+        console.log("selectedSchedule", selectedSchedule);
+        const id = selectedSchedule?.id
+        try {
+            const response = editPickup_Shedules(id, data)
+            if (response?.response?.status == 400) {
+
+            }
+
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    return (
+        <>
+            <div className="p-6  main main_page min-h-screen duration-800 ease-in-out">
+                <BreadcrumbsNav customTrail={[{ label: "Pick-up Schedule", path: "/pickup_schedule" }]} />
+                <div className="flex justify-between items-center">
+
+                    <PageTitle title={"Pick-Up Schedules"} />
+                    {/* <button
+                        className="bg-[#3d9bc7] text-white cursor-pointer px-4 py-2 rounded hover:bg-[#02598e] text-[12px]"
+                    // onClick={openAddModal}
+                    onClick={() => navigate("/add_coupon")}
+                    >
+                        <span className="font-bold">+ </span>ADD NEW COUPON
+                    </button> */}
+                </div>
+                {/* Top KPI Cards */}
+                {/* <UserTable /> */}
+                <div className="mt-4">
+                    <ProductTable columns={columns} productList={sheduleList} isLoading={isLoading} />
+
+                </div>
+            </div>
+            {/* <DeleteModel
+                isOpen={showDeleteModal}
+                onClose={closeDeleteModal}
+                onConfirm={confirmDelete}
+                redbutton="Confirm"
+                para="Do you really want to delete? This action cannot be
+            undone."
+                isLoading={isLoading}
+            /> */}
+
+            <PickupSchedule_Model model={isModalOpen} onClose={() => setModalOpen(false)} schedule_data={selectedSchedule}
+                onSubmit={handleSubmit}
+
+            />
+
+        </>
+    );
+}

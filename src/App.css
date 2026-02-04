@@ -1,0 +1,66 @@
+@import "tailwindcss";
+* {
+  box-sizing: border-box;
+}
+body {
+  width: 100%;
+  height: 100%;
+  background-color: #f9fafb;
+  font-family: "Roboto", sans-serif;
+  font-size: medium;
+  box-sizing: border-box;
+}
+.header_top_menu {
+  /* left: 16rem; */
+  width: -webkit-fill-available;
+}
+.main.main_page {
+  width: 100%;
+  padding: 2.5rem 1rem 1rem 19.8rem;
+}
+.side_menu .main.main_page {
+  padding-left: 1rem;
+}
+
+.side_menu .header_top_menu {
+  left: 0rem;
+}
+
+.sidebar {
+  width: 280px;
+}
+
+/* Autofill background override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #d1d5db inset !important; /* replace #fff with your bg */
+  -webkit-text-fill-color: #000 !important; /* text color */
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+
+.p-image {
+  width: 30px;
+  background: #3d9bc7;
+  overflow: hidden;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+.p-image input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+}
