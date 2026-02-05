@@ -183,3 +183,24 @@ export const editDelivery_Shedules = (id, data) => apiRequest(`superadmin/delive
 export const changeStatus_Delivery_Shedule = (data, id) => apiRequest(`superadmin/delivery-schedule-status/${id}`, "POST", data, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });
+
+// Area Apis
+export const getAreaList = () => apiRequest("superadmin/area-list", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const addArea = (body) => apiRequest("superadmin/area-add", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const editArea = (body, id) => apiRequest(`superadmin/area-edit/${id}`, "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const areaStatusUpdate = (body, id) => apiRequest(`superadmin/area-status/${id}`, "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const deleteArea = (deleteId) => apiRequest(`superadmin/area-delete/${deleteId}`, "DELETE", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});

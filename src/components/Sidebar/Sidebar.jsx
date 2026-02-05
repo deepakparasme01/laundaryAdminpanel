@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaChevronDown, FaCog } from "react-icons/fa";
-import { FaStore, FaConciergeBell, FaCommentDots, FaPersonBooth } from "react-icons/fa";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import DesignServicesIcon from '@mui/icons-material/DesignServices';
-import GroupWorkIcon from "@mui/icons-material/GroupWork";
-import PeopleIcon from "@mui/icons-material/People";
-import RestaurantIcon from "@mui/icons-material/Restaurant";
-import headerlogo from "/trofititle.png";
+
 import logo from "../../assets/images/laundry-logo.png"
 /* 🔹 Recursive Sidebar Item */
 const SidebarItem = ({
@@ -250,6 +246,7 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           dropdown: true,
           subItems: [
             { name: "App Setting", link: "app_setting", dropdown: false },
+            { name: "Area", link: "area", dropdown: false },
             // { name: "Subcategory List", link: "subcategory_list", dropdown: false },
             // { name: "Add Category", link: "#", dropdown: false },
           ],
@@ -257,7 +254,7 @@ function Sidebar({ setIs_Toggle, isToggle }) {
       ],
       border: true,
     },
-     {
+    {
       section: "",
       items: [
         {

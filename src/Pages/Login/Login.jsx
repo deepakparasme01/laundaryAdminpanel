@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/laundry-logo.png";
-// import loginbg from "../../assets/images/loginimage.jpg";
-import loginleftbg from "../../assets/images/loginleftbg.jpg";
-import { FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { login } from "../../apis/Auth";

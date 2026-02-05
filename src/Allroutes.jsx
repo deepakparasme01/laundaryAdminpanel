@@ -28,6 +28,7 @@ import { AddCoupon } from "./Pages/coupons/AddCoupon";
 import PublicRoute from "./PublicRoutes";
 import { PicUp_Shedules } from "./Pages/shedule/picup-shedule/PicUp_Shedules";
 import { Delivery_Shedules } from "./Pages/shedule/delivery-shedule/Delivery_Shedules";
+import Area from "./Pages/settings/Area";
 
 const Allroutes = () => {
   const [authData, setAuthData] = useState(() =>
@@ -65,6 +66,7 @@ const Allroutes = () => {
               <Route path="/update_service/:srId" element={<AddService />} />
 
               <Route path="/app_setting" element={<AppSetting />} />
+              <Route path="/area" element={<Area />} />
 
               {/* cms routes */}
               <Route path="/about_us" element={<About_Us />} />
