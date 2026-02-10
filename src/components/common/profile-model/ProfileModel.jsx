@@ -11,32 +11,35 @@ export const ProfileModel = ({ model, setModel, profiledata }) => {
     const [formdata, setFormData] = useState({
         name: "",
         email: "",
-        phone: null,
-        country_code: null,
+        phone: "",
+        country_code: "",
         image: null
     })
     const [preview, setPreview] = useState("")
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (profiledata) {
             setFormData({
-                name: profiledata?.name || "",
-                email: profiledata?.email || "",
-                phone: profiledata?.phone || null,
-                country_code: profiledata?.country_code || null,
-                image: profiledata?.image || null
+                name: profiledata.name || "",
+                email: profiledata.email || "",
+                phone: profiledata.phone || "",
+                country_code: profiledata.country_code || "+91",
+                image: profiledata.image || null
             })
-            if (profiledata?.image) {
-                const ImageUrl = `${IMG_BASE_URL}${profiledata?.image}`;
-                setPreview(ImageUrl)
+            if (profiledata.image) {
+                setPreview(`${IMG_BASE_URL}${profiledata.image}`)
+            } else {
+                setPreview("")
             }
         }
     }, [profiledata, model])
-    const handleChange = (e) =>{
-        const {name, value} = e.target
-        setFormData(prevProfile=>({
-            ...prevProfile,
-            [name]:value
+
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
         }))
     }
 
@@ -45,144 +48,156 @@ export const ProfileModel = ({ model, setModel, profiledata }) => {
         if (selectedFile) {
             const previewUrl = URL.createObjectURL(selectedFile);
             setPreview(previewUrl);
-            setFormData((prevProfile) => ({
-                ...prevProfile,
+            setFormData((prev) => ({
+                ...prev,
                 image: selectedFile,
-
             }));
         }
     };
 
-
-
-
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        setIsLoading(true);
+
         const data = new FormData();
-        data.append("name", formdata?.name)
-        data.append("email", formdata?.email)
-        data.append("country_code", formdata?.country_code)
-        data.append("phone", formdata?.phone)
-        data.append("image", formdata?.image)
+        data.append("name", formdata.name);
+        data.append("email", formdata.email);
+        data.append("country_code", formdata.country_code);
+        data.append("phone", formdata.phone);
+
+        // Only append image if it's a new file (not the existing string URL)
+        if (formdata.image instanceof File) {
+            data.append("image", formdata.image);
+        }
+
         try {
-            const response = await updateProfile(data)
-            console.log("update profile:", response);
-            if (response?.status == 200) {
-                toast.success(response?.message)
-                setModel(false)
-               
+            const response = await updateProfile(data);
+            if (response?.status === 200) {
+                toast.success(response.message || "Profile updated successfully");
+                setModel(false);
+                // Ideally trigger a refresh of the parent profile data here
+                // For now, we rely on the parent likely refetching or the user reloading
+                if (window.location.pathname === '/profile') {
+                    window.location.reload();
+                }
+            } else {
+                toast.error(response?.response?.data?.message || "Failed to update profile");
             }
-
         } catch (error) {
-            console.error("Error update profile:", error)
-
+            console.error("Error updating profile:", error);
+            toast.error("An error occurred while updating profile");
+        } finally {
+            setIsLoading(false);
         }
     }
 
-    if (!model) {
-        return;
-    }
+    if (!model) return null;
+
     return (
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-[9999] backdrop-blur-sm transition-opacity duration-300">
+            <div className="w-[90%] max-w-2xl bg-white rounded-2xl shadow-2xl p-8 relative animate-in fade-in zoom-in-95 duration-200">
+                <button
+                    onClick={() => setModel(false)}
+                    className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+                >
+                    <IoMdClose size={24} />
+                </button>
 
-        <div className="fixed top-0 left-0 w-screen h-screen bg-black/60 flex justify-center items-center z-[9999]">
-            <div className="w-[90%] max-w-2xl bg-white rounded-lg p-6 relative">
-                {/* <BreadcrumbsNav customTrail={[{ label: "Category List", path: "/category_list" }, { label: "Add Category", path: "/add_category" }]} />
-                    <PageTitle title={"Create Category"} /> */}
-                {/* Top KPI Cards */}
-                {/* <UserTable /> */}
-                <div className="absolute top-4 right-4 p-2 bg-white hover:bg-gray-50 flex items-center rounded-full border border-gray-300 shadow-xs text-gray-600 text-xl hover:text-red-500">
-                    <button
-                    // onClick={handleModelClose}
-                    >
-                        <IoMdClose className=" " onClick={() => setModel(false)} />
-                    </button>
-                </div>
-                <div className="mt-4">
-                    <h1 className="text-lg font-semibold mb-4">Update Profile</h1>
-                    <form onSubmit={(e) => handleSubmit(e)} method="POST">
-                        <div className="p-4 border border-gray-100 rounded shadow-md">
-                            <div className="flex items-center justify-center mb-5 relative">
-                                {preview ? (
-                                    <div style={{ marginTop: "0.1rem" }}>
-                                        <img
-                                            src={preview}
-                                            alt="preview"
-                                            style={{
-                                                width: "140px",
-                                                height: "140px",
-                                                objectFit: "cover",
-                                                // border: "1px solid #ccc",
-                                                borderRadius: "8px",
-                                            }}
-                                        />
-                                    </div>
-                                ) : formdata?.image ? (
-                                    <div style={{ marginTop: "0.1rem" }}>
-                                        <img
-                                            src={`${IMG_BASE_URL}${formdata?.image}`}
-                                            alt="Profile"
-                                            style={{
-                                                width: "140px",
-                                                height: "140px",
-                                                objectFit: "cover",
-                                                // border: "1px solid #ccc",
-                                                borderRadius: "8px",
-                                            }}
-                                        />
-                                    </div>
-                                ) : (
-                                    <div style={{ marginTop: "0.1rem" }}>
-                                        <img
-                                            src={profilePhoto}
-                                            alt="default"
-                                            style={{
-                                                width: "140px",
-                                                height: "140px",
-                                                objectFit: "cover",
-                                                // border: "1px solid #ccc",
-                                                borderRadius: "8px",
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                                <div
-                                    className="absolute bottom-[10px] flex justify-center w-full">
-                                    <div className="p-image rounded-full relative flex flex-col items-center">
-                                        {/* <i
-                                        className="fi-rr-camera text-[#fff] text-[18px] leading-[17px]"></i> */}
-                                        <IoCameraOutline className="text-white" />
-                                        <input className="file-upload" type="file" name='profileImg'
-                                            onChange={handleFileChange}
-                                            accept="image/*" />
-                                    </div>
-                                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Edit Profile</h2>
 
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Profile Image Section */}
+                    <div className="flex justify-center mb-8">
+                        <div className="relative group">
+                            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-100 shadow-lg">
+                                <img
+                                    src={preview || profilePhoto}
+                                    alt="Profile Preview"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => { e.target.src = profilePhoto }}
+                                />
                             </div>
-
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="flex flex-col gap-2">
-                                    <label className="">Name</label>
-                                    <input type="text" name="name" placeholder="enter name" value={formdata?.name} className="border border-gray-200 p-3 text-sm focus:outline-none rounded" onChange={handleChange} />
-                                    {/* {errors?.categoryname && (
-                                                <p className="text-red-500 text-sm mt-1">{errors.categoryname}</p>
-                                            )} */}
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="">Email Address</label>
-                                    <input type="email" name="email" placeholder="enter email address" value={formdata?.email} className="border border-gray-200 p-3 text-sm focus:outline-none rounded" onChange={handleChange} />
-                                    {/* {errors?.categoryname && (
-                                                <p className="text-red-500 text-sm mt-1">{errors.categoryname}</p>
-                                            )} */}
-                                </div>
-
-                            </div>
-                            <div className="mt-3">
-                                <button type="submit" className="bg-[#3d9bc7] hover:bg-[#02598e] text-white px-3 py-1 rounded " >Save</button>
-                            </div>
+                            <label className="absolute bottom-1 right-1 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer shadow-md transition-all hover:scale-105">
+                                <IoCameraOutline size={20} />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                            </label>
                         </div>
-                    </form>
+                    </div>
 
-                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-gray-600">Full Name</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formdata.name}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="Enter your name"
+                                required
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-gray-600">Email Address</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formdata.email}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="Enter email address"
+                                required
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-gray-600">Country Code</label>
+                            <input
+                                type="text"
+                                name="country_code"
+                                value={formdata.country_code}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="+91"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-gray-600">Phone Number</label>
+                            <input
+                                type="text"
+                                name="phone"
+                                value={formdata.phone}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="Enter phone number"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end pt-4 gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setModel(false)}
+                            className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="px-6 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                            {isLoading ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

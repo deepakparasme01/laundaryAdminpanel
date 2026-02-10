@@ -34,6 +34,8 @@ import { OrderList } from "./Pages/orders/OrderList";
 import { DriverList } from "./Pages/driver/DriverList";
 import { DriverDetails } from "./Pages/driver/DriverDetails";
 import { CustomerList } from "./Pages/customer/CustomerList";
+import { UserDetails } from "./Pages/customer/UserDetails";
+import { NotificationList } from "./Pages/notifications/NotificationList";
 import { OrderReport } from "./Pages/reports/OrderReport";
 
 import { OrderDetails } from "./Pages/orders/OrderDetails";
@@ -96,6 +98,8 @@ const Allroutes = () => {
               <Route path="/driver_list" element={<DriverList />} />
               <Route path="/driver_detail/:id" element={<DriverDetails />} />
               <Route path="/customer_list" element={<CustomerList />} />
+              <Route path="/customer_detail/:id" element={<UserDetails />} />
+              <Route path="/notifications" element={<NotificationList />} />
 
 
 

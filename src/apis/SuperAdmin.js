@@ -301,3 +301,11 @@ export const getOrderReport = ({ pickup_date, delivery_date }) => {
     Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
   });
 };
+
+export const getUserDetails = (body) => apiRequest("superadmin/user-detail", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const getNotificationList = () => apiRequest("superadmin/notification-list", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});

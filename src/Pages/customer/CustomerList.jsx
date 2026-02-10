@@ -72,9 +72,23 @@ export const CustomerList = () => {
                 header: "Created At",
                 accessorKey: "created_at",
                 cell: ({ row }) => <span>{new Date(row.original.created_at).toLocaleDateString()}</span>
+            },
+            {
+                header: "Action",
+                accessorKey: "action",
+                cell: ({ row }) => (
+                    <div className="flex justify-center">
+                        <button
+                            onClick={() => navigate(`/customer_detail/${row.original.id}`)}
+                            className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm transition-colors duration-200"
+                        >
+                            View
+                        </button>
+                    </div>
+                )
             }
         ],
-        []
+        [navigate]
     );
 
     const fetchCustomers = async () => {
