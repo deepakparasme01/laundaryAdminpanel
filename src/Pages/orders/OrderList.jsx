@@ -23,6 +23,35 @@ export const OrderList = () => {
     const [driverSearch, setDriverSearch] = useState("");
     const [statusOrder, setStatusOrder] = useState(null);
 
+    // Filters State
+    const [filters, setFilters] = useState({
+        order_status: "",
+        pickup_date: "",
+        delivery_date: ""
+    });
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const applyFilters = () => {
+        fetchOrders(filters);
+    };
+
+    const resetFilters = () => {
+        const emptyFilters = {
+            order_status: "",
+            pickup_date: "",
+            delivery_date: ""
+        };
+        setFilters(emptyFilters);
+        fetchOrders(emptyFilters);
+    };
+
     const statusMapping = {
         1: { label: "New", color: "bg-blue-100 text-blue-600" },
         2: { label: "Pick up", color: "bg-yellow-100 text-yellow-600" },
@@ -59,7 +88,32 @@ export const OrderList = () => {
                 cell: (info) => <span>{info.row.index + 1}</span>,
                 size: 50,
             },
-            { header: "Service Name", accessorKey: "service_name" },
+            {
+                header: "Category Name",
+                accessorKey: "category_names",
+                size: 200,
+                cell: ({ row }) => {
+                    const categories = row.original.category_names || [];
+                    const displayLimit = 2;
+                    const showCategories = categories.slice(0, displayLimit);
+                    const remaining = categories.length - displayLimit;
+
+                    return (
+                        <div className="flex flex-wrap gap-1 items-center">
+                            {showCategories.map((cat, i) => (
+                                <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 text-[10px] font-medium rounded-md border border-gray-200 capitalize tracking-wide whitespace-nowrap">
+                                    {cat}
+                                </span>
+                            ))}
+                            {remaining > 0 && (
+                                <span className="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-semibold rounded-md border border-blue-100 whitespace-nowrap">
+                                    +{remaining} more
+                                </span>
+                            )}
+                        </div>
+                    );
+                }
+            },
             {
                 header: "Timeline",
                 cell: ({ row }) => {
@@ -171,10 +225,10 @@ export const OrderList = () => {
         []
     );
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (filterParams = {}) => {
         try {
             setIsLoading(true);
-            const response = await getOrderList();
+            const response = await getOrderList(filterParams);
             if (response?.status === 200) {
                 setOrderList(response?.data?.orders || []);
             } else if (response?.response?.data?.status === 401) {
@@ -272,7 +326,61 @@ export const OrderList = () => {
                     <PageTitle title={"Order List"} />
                 </div>
                 <div className="mt-4">
-                    <ProductTable columns={columns} productList={orderList} isLoading={isLoading} />
+                    {/* Filters Section */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-6">
+                        <div className="flex flex-col md:flex-row gap-4 items-end">
+                            <div className="w-full md:w-1/4">
+                                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+                                <select
+                                    name="order_status"
+                                    value={filters.order_status}
+                                    onChange={handleFilterChange}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50 hover:bg-white"
+                                >
+                                    <option value="">All Statuses</option>
+                                    {Object.entries(statusMapping).map(([value, { label }]) => (
+                                        <option key={value} value={value}>{label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="w-full md:w-1/4">
+                                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Pickup Date</label>
+                                <input
+                                    type="date"
+                                    name="pickup_date"
+                                    value={filters.pickup_date}
+                                    onChange={handleFilterChange}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50 hover:bg-white"
+                                />
+                            </div>
+                            <div className="w-full md:w-1/4">
+                                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Delivery Date</label>
+                                <input
+                                    type="date"
+                                    name="delivery_date"
+                                    value={filters.delivery_date}
+                                    onChange={handleFilterChange}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50 hover:bg-white"
+                                />
+                            </div>
+                            <div className="w-full md:w-1/4 flex gap-2">
+                                <button
+                                    onClick={applyFilters}
+                                    className="flex-1 bg-[#3d9bc7] hover:bg-[#02598e] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                >
+                                    Filter
+                                </button>
+                                <button
+                                    onClick={resetFilters}
+                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-gray-200"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ProductTable columns={columns} productList={orderList} isLoading={isLoading} emptyMessage="No orders found." />
                 </div>
             </div>
 

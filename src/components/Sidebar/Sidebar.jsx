@@ -20,6 +20,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import ViewCarouselOutlinedIcon from '@mui/icons-material/ViewCarouselOutlined';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import MapIcon from '@mui/icons-material/Map';
@@ -190,6 +191,12 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           subItems: [{ name: "Service", link: "services", dropdown: false }],
         },
         {
+          name: "Reports",
+          icon: <AssessmentIcon />,
+          link: "order_report",
+          dropdown: false,
+        },
+        {
           name: "Drivers",
           icon: <LocalShippingOutlinedIcon />,
           link: "driver_list",
@@ -201,7 +208,7 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           link: "customer_list",
           dropdown: false,
         },
-        
+
       ],
       border: true,
     },
@@ -233,6 +240,7 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           subItems: [
             { name: "App Setting", link: "app_setting", dropdown: false, icon: <SmartphoneIcon className="w-4 h-4" /> },
             { name: "Area", link: "area", dropdown: false, icon: <MapIcon className="w-4 h-4" /> },
+            { name: "Delivery Charge", link: "delivery_charge", dropdown: false, icon: <LocalShippingOutlinedIcon className="w-4 h-4" /> },
             {
               name: "Pic-up Shedule",
               link: "pickup_schedule",

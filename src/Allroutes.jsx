@@ -29,9 +29,12 @@ import PublicRoute from "./PublicRoutes";
 import { PicUp_Shedules } from "./Pages/shedule/picup-shedule/PicUp_Shedules";
 import { Delivery_Shedules } from "./Pages/shedule/delivery-shedule/Delivery_Shedules";
 import Area from "./Pages/settings/Area";
+import DeliveryCharge from "./Pages/settings/DeliveryCharge";
 import { OrderList } from "./Pages/orders/OrderList";
 import { DriverList } from "./Pages/driver/DriverList";
+import { DriverDetails } from "./Pages/driver/DriverDetails";
 import { CustomerList } from "./Pages/customer/CustomerList";
+import { OrderReport } from "./Pages/reports/OrderReport";
 
 import { OrderDetails } from "./Pages/orders/OrderDetails";
 
@@ -72,6 +75,7 @@ const Allroutes = () => {
 
               <Route path="/app_setting" element={<AppSetting />} />
               <Route path="/area" element={<Area />} />
+              <Route path="/delivery_charge" element={<DeliveryCharge />} />
 
               {/* cms routes */}
               <Route path="/about_us" element={<About_Us />} />
@@ -88,7 +92,9 @@ const Allroutes = () => {
 
               <Route path="/order_list" element={<OrderList />} />
               <Route path="/order_detail/:id" element={<OrderDetails />} />
+              <Route path="/order_report" element={<OrderReport />} />
               <Route path="/driver_list" element={<DriverList />} />
+              <Route path="/driver_detail/:id" element={<DriverDetails />} />
               <Route path="/customer_list" element={<CustomerList />} />
 
 

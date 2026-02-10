@@ -44,9 +44,17 @@ export const updateSubcategory = (body, id) => apiRequest(`superadmin/sub-catego
 
 
 // products
-export const getProducts = () => apiRequest("superadmin/product-list", "GET", null, {
-  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
-});
+export const getProducts = (params) => {
+  const queryString = params
+    ? Object.keys(params)
+      .map((key) => `${key}=${params[key]}`)
+      .join("&")
+    : "";
+  const url = queryString ? `superadmin/product-list?${queryString}` : "superadmin/product-list";
+  return apiRequest(url, "GET", null, {
+    Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+  });
+};
 export const productStatusUpdate = (body, id) => apiRequest(`superadmin/product-status/${id}`, "POST", body, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });
@@ -205,10 +213,26 @@ export const deleteArea = (deleteId) => apiRequest(`superadmin/area-delete/${del
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });
 
+const formatDateFilter = (dateString) => {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("-");
+  return `${day}-${month}-${year}`;
+};
+
 // Order Apis
-export const getOrderList = () => apiRequest("superadmin/order-list", "GET", null, {
-  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
-});
+export const getOrderList = (filters = {}) => {
+  const queryParams = new URLSearchParams();
+  if (filters.order_status) queryParams.append("order_status", filters.order_status);
+  if (filters.pickup_date) queryParams.append("pickup_date", formatDateFilter(filters.pickup_date));
+  if (filters.delivery_date) queryParams.append("delivery_date", formatDateFilter(filters.delivery_date));
+
+  const queryString = queryParams.toString();
+  const url = queryString ? `superadmin/order-list?${queryString}` : "superadmin/order-list";
+
+  return apiRequest(url, "GET", null, {
+    Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+  });
+};
 
 export const getOrderDetail = (body) => apiRequest("superadmin/order-detail", "POST", body, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
@@ -241,3 +265,39 @@ export const updateUserStatus = (body) => apiRequest("superadmin/user-status", "
 export const getCustomerList = () => apiRequest("superadmin/user-list", "GET", null, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });
+
+// Delivery Cost APIs
+export const getDeliveryCost = () => apiRequest("superadmin/delivery-cost", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const updateDeliveryCost = (body) => apiRequest("superadmin/delivery-cost-update", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const getDriverDetails = (body) => apiRequest("superadmin/driver-detail", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const updateDriver = (formData) => apiRequest("superadmin/driver-update", "POST", formData, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+  "Content-Type": "multipart/form-data",
+});
+
+export const deleteDriver = (deleteId) => apiRequest("superadmin/driver-delete", "DELETE", { driver_id: deleteId }, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+// Report Apis
+export const getOrderReport = ({ pickup_date, delivery_date }) => {
+  const queryParams = new URLSearchParams();
+  if (pickup_date) queryParams.append("pickup_date", formatDateFilter(pickup_date));
+  if (delivery_date) queryParams.append("delivery_date", formatDateFilter(delivery_date));
+
+  const queryString = queryParams.toString();
+  const url = queryString ? `superadmin/order-report?${queryString}` : "superadmin/order-report";
+
+  return apiRequest(url, "GET", null, {
+    Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+  });
+};

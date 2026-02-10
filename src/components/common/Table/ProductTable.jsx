@@ -66,7 +66,7 @@ import { IMG_BASE_URL } from '../../../config/Config';
 //   );
 // }
 
-export const ProductTable = ({ columns, productList, isLoading }) => {
+export const ProductTable = ({ columns, productList, isLoading, emptyMessage }) => {
 
   const data = productList;
 
@@ -121,11 +121,7 @@ export const ProductTable = ({ columns, productList, isLoading }) => {
           </div>
         ) : table.getRowModel().rows.length === 0 ? (
           <div className="text-center text-gray-500 py-10 font-medium">
-            {/* {statusFilter === "active" && "No active admins found."}
-            {statusFilter === "inactive" && "No inactive admins found."}
-            {statusFilter === "Suspend" && "No suspended admins found."}
-            {statusFilter === "all" && "No admins available."} */}
-            No category available.
+            {emptyMessage || "No category available."}
           </div>
         ) : (
           <table className="w-full text-sm table-auto p-3 overflow-x-scroll">
@@ -158,7 +154,6 @@ export const ProductTable = ({ columns, productList, isLoading }) => {
                 <tr key={row.id}
                   className="border-b border-b-[#E0E0E0] hover:bg-gray-50">
                   {row.getVisibleCells().map((cell) => (
-
                     <td key={cell.id} className={`p-3 ${cell.column.columnDef.header === "Status"
                       ? "text-center"
                       : cell.column.columnDef.header === "Action" || cell.column.columnDef.header === "S.N"

@@ -3,8 +3,9 @@ import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNa
 import PageTitle from "../../components/PageTitle/PageTitle";
 import { toast } from "react-toastify";
 import { getAboutData, updateAboutData } from "../../apis/SuperAdmin";
-import { Editor } from "@tinymce/tinymce-react";
-const api_key = import.meta.env.VITE_API_KEY;
+import SunEditor from 'suneditor-react';
+import 'suneditor/dist/css/suneditor.min.css';
+
 export const About_Us = () => {
     const [formData, setFormData] = useState({
         title: "",
@@ -93,46 +94,46 @@ export const About_Us = () => {
             <div className="mt-4">
                 <form onSubmit={handleSubmit} method="POST">
                     <div className="p-8 border border-gray-200 rounded-2xl bg-white">
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-6">
                             <div className="flex flex-col gap-2">
-                                <label className="">Title <span className="text-red-500">*</span></label>
-                                <input type="text" name="title" value={formData?.title} placeholder="enter title" className="border border-gray-200 p-3 text-sm focus:outline-none rounded" onChange={handleChange} />
+                                <label className="font-semibold text-gray-700">Title <span className="text-red-500">*</span></label>
+                                <input type="text" name="title" value={formData?.title} placeholder="Enter title" className="border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg transition-all" onChange={handleChange} />
                                 {errors?.title && (
                                     <p className="text-red-500 text-sm mt-1">{errors.title}</p>
                                 )}
                             </div>
-                            {/* <div className="flex flex-col gap-2">
-                                <label className="">Content</label>
-                                <input type="text" name="content" value={formData?.content} placeholder="content" className="border border-gray-200 p-3 text-sm focus:outline-none rounded" onChange={handleChange} />
+
+                            <div className="flex flex-col gap-2">
+                                <label className="font-semibold text-gray-700">Content</label>
+                                <SunEditor
+                                    setContents={formData?.content}
+                                    onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                                    setOptions={{
+                                        height: 300,
+                                        buttonList: [
+                                            ['undo', 'redo'],
+                                            ['font', 'fontSize', 'formatBlock'],
+                                            ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript'],
+                                            ['fontColor', 'hiliteColor', 'textStyle'],
+                                            ['removeFormat'],
+                                            ['outdent', 'indent'],
+                                            ['align', 'horizontalRule', 'list', 'lineHeight'],
+                                            ['table', 'link', 'image', 'video'],
+                                            ['fullScreen', 'showBlocks', 'codeView']
+                                        ]
+                                    }}
+                                />
                                 {errors?.content && (
                                     <p className="text-red-500 text-sm mt-1">{errors.content}</p>
                                 )}
-                            </div> */}
-
+                            </div>
                         </div>
-                        <div className="mt-2">
-                            <Editor
-                                apiKey={api_key}
-                                value={formData?.content}
-                                onEditorChange={(newValue) => setFormData(prevContent => ({ ...prevContent, content: newValue }))}
-                                init={{
-                                    height: 300,
-                                    menubar: false,
-                                    plugins: "link image code table lists",
-                                    toolbar:
-                                        "undo redo | bold italic | alignleft aligncenter alignright | bullist numlist",
-                                }}
-                            />
-                            {errors?.content && (
-                                <p className="text-red-500 text-sm mt-1">{errors.content}</p>
-                            )}
-                        </div>
-                        <div className="mt-3">
-                            <button type="submit" className="bg-[#3d9bc7] hover:bg-[#02598e] text-white px-3 py-1 rounded ">Submit</button>
+                        <div className="mt-6 flex justify-end">
+                            <button type="submit" className="bg-[#3d9bc7] hover:bg-[#02598e] text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg">Submit</button>
                         </div>
                     </div>
                 </form>
             </div>
-        </div>
+        </div >
     );
 }

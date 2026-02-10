@@ -3,7 +3,7 @@ import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNa
 import { ProductTable } from "../../components/common/Table/ProductTable";
 import PageTitle from "../../components/PageTitle/PageTitle";
 import { toast } from "react-toastify";
-import { addproduct, categoryList, deleteProduct, editproduct, getProducts, productStatusUpdate } from "../../apis/SuperAdmin";
+import { addproduct, categoryList, deleteProduct, editproduct, getProducts, productStatusUpdate, subcategoryList } from "../../apis/SuperAdmin";
 import { useNavigate } from "react-router-dom";
 import { MdDelete, MdEdit } from "react-icons/md";
 
@@ -23,6 +23,59 @@ export const Products = () => {
     const [isModalOpen, setModalOpen] = useState(false);
     const [mode, setMode] = useState("add");
     const [selectedProduct, setSelectedProduct] = useState(null);
+
+    // Filter states
+    const [categories, setCategories] = useState([]);
+    const [subcategories, setSubcategories] = useState([]);
+    const [filters, setFilters] = useState({
+        category_id: "",
+        sub_category_id: ""
+    });
+
+    // Fetch filters data
+    const fetchFilterData = async () => {
+        try {
+            const [catRes, subCatRes] = await Promise.all([
+                categoryList(),
+                subcategoryList()
+            ]);
+
+            if (catRes?.status === 200) {
+                setCategories(catRes.data?.category_list || []);
+            }
+            if (subCatRes?.status === 200) {
+                setSubcategories(subCatRes.data?.sub_category_list || []);
+            }
+        } catch (error) {
+            console.error("Error fetching filter options:", error);
+        }
+    };
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({
+            ...prev,
+            [name]: value,
+            // Reset subcategory if category changes
+            ...(name === "category_id" ? { sub_category_id: "" } : {})
+        }));
+    };
+
+    const applyFilters = () => {
+        fetchProducts(filters);
+    };
+
+    const resetFilters = () => {
+        const emptyFilters = { category_id: "", sub_category_id: "" };
+        setFilters(emptyFilters);
+        fetchProducts(emptyFilters);
+    };
+
+    // Filter subcategories based on selected category
+    const filteredSubcategories = useMemo(() => {
+        if (!filters.category_id) return subcategories;
+        return subcategories.filter(sub => sub.root == filters.category_id);
+    }, [subcategories, filters.category_id]);
 
 
     const columns = useMemo(
@@ -116,10 +169,10 @@ export const Products = () => {
         setSelectedProduct(product_data);
         setModalOpen(true);
     };
-    const fetchProducts = async () => {
+    const fetchProducts = async (filterParams = {}) => {
         try {
             setIsLoading(true);
-            const response = await getProducts();
+            const response = await getProducts(filterParams);
             if (response?.status == 200) {
                 setProductList(response?.data?.product_list || []);
                 setIsLoading(false);
@@ -140,6 +193,7 @@ export const Products = () => {
 
     useEffect(() => {
         fetchProducts();
+        fetchFilterData();
     }, []);
 
     const closeDeleteModal = () => {
@@ -248,6 +302,55 @@ export const Products = () => {
                 {/* Top KPI Cards */}
                 {/* <UserTable /> */}
                 <div className="mt-4">
+                    {/* Filters Section */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-6">
+                        <div className="flex flex-col md:flex-row gap-4 items-end">
+                            <div className="w-full md:w-1/3">
+                                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Category</label>
+                                <select
+                                    name="category_id"
+                                    value={filters.category_id}
+                                    onChange={handleFilterChange}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50 hover:bg-white"
+                                >
+                                    <option value="">All Categories</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="w-full md:w-1/3">
+                                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Sub Category</label>
+                                <select
+                                    name="sub_category_id"
+                                    value={filters.sub_category_id}
+                                    onChange={handleFilterChange}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50 hover:bg-white"
+                                    disabled={!filters.category_id && subcategories.length > 0}
+                                >
+                                    <option value="">All Sub Categories</option>
+                                    {filteredSubcategories.map((sub) => (
+                                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="w-full md:w-1/3 flex gap-2">
+                                <button
+                                    onClick={applyFilters}
+                                    className="flex-1 bg-[#3d9bc7] hover:bg-[#02598e] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                >
+                                    Filter
+                                </button>
+                                <button
+                                    onClick={resetFilters}
+                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-gray-200"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <ProductTable columns={columns} productList={productList} isLoading={isLoading} />
 
                 </div>

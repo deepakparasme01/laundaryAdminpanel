@@ -1,11 +1,12 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNav";
 import PageTitle from "../../components/PageTitle/PageTitle";
 import { ProductTable } from "../../components/common/Table/ProductTable";
-import { getDrivers, addDriver, updateUserStatus } from "../../apis/SuperAdmin";
+import { MdVisibility, MdEdit, MdDelete } from "react-icons/md";
+import { getDrivers, addDriver, updateUserStatus, updateDriver, deleteDriver } from "../../apis/SuperAdmin";
+import DeleteModel from "../../components/common/DeleteModel/DeleteModel";
 import { IMG_BASE_URL } from "../../config/Config";
 
 export const DriverList = () => {
@@ -14,7 +15,20 @@ export const DriverList = () => {
     const [driverList, setDriverList] = useState([]);
 
     // Add Driver Modal State
+    // Add/Edit Driver Modal State
     const [isAddDriverModalOpen, setAddDriverModalOpen] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+    const [selectedDriverId, setSelectedDriverId] = useState(null);
+
+    // View Details State
+    // const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    // const [driverDetails, setDriverDetails] = useState(null);
+    // const [viewLoading, setViewLoading] = useState(false);
+
+    // Delete Modal State
+    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -83,9 +97,35 @@ export const DriverList = () => {
                 },
             },
             {
-                header: "Created At",
-                accessorKey: "created_at",
-                cell: ({ row }) => <span>{new Date(row.original.created_at).toLocaleDateString()}</span>
+                header: "Action",
+                size: 100,
+                cell: ({ row }) => {
+                    return (
+                        <div className="flex justify-center gap-2">
+                            <button
+                                className="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-full transition-colors cursor-pointer"
+                                onClick={() => navigate(`/driver_detail/${row.original.id}`)}
+                                title="View Details"
+                            >
+                                <MdVisibility size={18} />
+                            </button>
+                            <button
+                                className="bg-green-50 text-green-600 hover:bg-green-100 p-2 rounded-full transition-colors cursor-pointer"
+                                onClick={() => handleEditClick(row.original)}
+                                title="Edit Driver"
+                            >
+                                <MdEdit size={18} />
+                            </button>
+                            <button
+                                className="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-full transition-colors cursor-pointer"
+                                onClick={() => handleDeleteClick(row.original.id)}
+                                title="Delete Driver"
+                            >
+                                <MdDelete size={18} />
+                            </button>
+                        </div>
+                    );
+                }
             }
         ],
         []
@@ -143,27 +183,84 @@ export const DriverList = () => {
         }
     };
 
+    const handleDeleteClick = (id) => {
+        setDeleteId(id);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            setIsLoading(true);
+            const response = await deleteDriver(deleteId);
+            if (response?.status === 200) {
+                toast.success(response.message || "Driver deleted successfully");
+                setDeleteModalOpen(false);
+                fetchDrivers();
+            } else {
+                toast.error(response?.response?.data?.message || "Failed to delete driver");
+            }
+        } catch (error) {
+            console.error("Delete driver error:", error);
+            toast.error("An error occurred");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
+
+    const handleEditClick = (driver) => {
+        setIsEdit(true);
+        setSelectedDriverId(driver.id);
+        setFormData({
+            name: driver.name,
+            email: driver.email,
+            password: "", // Password optional on edit
+            country_code: driver.country_code || "91",
+            phone: driver.phone,
+            dob: driver.dob || "",
+            image: null
+        });
+        if (driver.image) {
+            setImagePreview(`${IMG_BASE_URL}${driver.image}`);
+        } else {
+            setImagePreview(null);
+        }
+        setAddDriverModalOpen(true);
+    };
+
     const handleSubmitDriver = async (e) => {
         e.preventDefault();
 
         const data = new FormData();
         Object.keys(formData).forEach(key => {
-            data.append(key, formData[key]);
+            // Append only if value exists, or if it's password (only if provided for edit)
+            if (key === "password") {
+                if (formData[key]) data.append(key, formData[key]);
+            } else if (formData[key] !== null) {
+                data.append(key, formData[key]);
+            }
         });
+
+        if (isEdit) {
+            data.append("driver_id", selectedDriverId);
+        }
 
         try {
             setIsLoading(true);
-            const response = await addDriver(data);
+            const apiCall = isEdit ? updateDriver : addDriver;
+            const response = await apiCall(data);
+
             if (response?.status === 200) {
-                toast.success(response.message || "Driver added successfully");
+                toast.success(response.message || (isEdit ? "Driver updated successfully" : "Driver added successfully"));
                 setAddDriverModalOpen(false);
                 resetForm();
                 fetchDrivers();
             } else {
-                toast.error(response?.response?.data?.message || "Failed to add driver");
+                toast.error(response?.response?.data?.message || "Operation failed");
             }
         } catch (error) {
-            console.error("Add driver error:", error);
+            console.error("Driver save error:", error);
             toast.error("An error occurred");
         } finally {
             setIsLoading(false);
@@ -171,6 +268,8 @@ export const DriverList = () => {
     };
 
     const resetForm = () => {
+        setIsEdit(false);
+        setSelectedDriverId(null);
         setFormData({
             name: "",
             email: "",
@@ -205,6 +304,17 @@ export const DriverList = () => {
                 </div>
             </div>
 
+            <DeleteModel
+                isOpen={isDeleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                redbutton="Delete"
+                para="Are you sure you want to delete this driver? This action cannot be undone."
+                isLoading={isLoading}
+            />
+
+            {/* View Driver Details Modal REMOVED - using separate page */}
+
             {/* Add Driver Modal */}
             {isAddDriverModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity overflow-y-auto">
@@ -221,7 +331,7 @@ export const DriverList = () => {
                             </svg>
                         </button>
 
-                        <h2 className="text-xl font-bold text-gray-800 mb-6">Add New Driver</h2>
+                        <h2 className="text-xl font-bold text-gray-800 mb-6">{isEdit ? "Update Driver" : "Add New Driver"}</h2>
 
                         <form onSubmit={handleSubmitDriver} className="space-y-4">
                             <div>
@@ -256,7 +366,8 @@ export const DriverList = () => {
                                     value={formData.password}
                                     onChange={handleInputChange}
                                     className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                    required minLength={6}
+                                    required={!isEdit} minLength={6}
+                                    placeholder={isEdit ? "Leave blank to keep current password" : ""}
                                 />
                             </div>
 
@@ -330,7 +441,7 @@ export const DriverList = () => {
                                     className="px-5 py-2.5 bg-[#3d9bc7] text-white rounded-lg hover:bg-[#02598e] transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? "Adding Driver..." : "Add Driver"}
+                                    {isLoading ? (isEdit ? "Updating..." : "Adding...") : (isEdit ? "Update Driver" : "Add Driver")}
                                 </button>
                             </div>
                         </form>
