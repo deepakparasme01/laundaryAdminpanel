@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { CategoryModel } from "../../components/common/category-model/CategoryModel";
 import { IMG_BASE_URL } from "../../config/Config";
 import { MdDelete, MdEdit } from "react-icons/md";
-import { FiEdit, FiTrash2  } from "react-icons/fi";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 
 
@@ -27,17 +27,23 @@ export const CategoryList = () => {
   const columns = useMemo(
     () => [
       {
+        header: "S.N",
+        cell: (info) => <span>{info.row.index + 1}</span>,
+        size: 50,
+      },
+      {
         header: "Image",
         accessorKey: "image",
         cell: (info) => (
           <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-          <img src={`${IMG_BASE_URL}${info.getValue()}`} alt="avatar" width={40} style={{ borderRadius: "50%" }} className="w-full h-full object-cover"/>
+            <img src={`${IMG_BASE_URL}${info.getValue()}`} alt="avatar" width={40} style={{ borderRadius: "50%" }} className="w-full h-full object-cover" />
           </div>
         ),
       },
       { header: "Name", accessorKey: "name" },
-      { header: "Status", accessorKey: "status",
-         size: 50,
+      {
+        header: "Status", accessorKey: "status",
+        size: 50,
         cell: (info) => {
           const status = info.row.original.status;
 
@@ -45,8 +51,8 @@ export const CategoryList = () => {
             status === 1
               ? "bg-green-100 text-green-600"
               : status === 0
-              ? "bg-yellow-100 text-yellow-600"
-              : "bg-red-100 text-red-600";
+                ? "bg-yellow-100 text-yellow-600"
+                : "bg-red-100 text-red-600";
 
           return (
             <div
@@ -56,34 +62,34 @@ export const CategoryList = () => {
               {status === 1
                 ? "Active"
                 : status === 0
-                ? "Deactive"
-                : "Deleted"}
+                  ? "Deactive"
+                  : "Deleted"}
             </div>
           );
         },
-       },
-       {
+      },
+      {
         header: "Action",
         size: 100,
         cell: ({ row }) => {
           return (
             <div className="flex gap-2 justify-start">
-            <button
-              className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-[#3d9bc7] text-white cursor-pointer hover:bg-[#02598e] whitespace-nowrap"
-              onClick={() =>
-                openEditModal(row.original)
-              }
-            >
-              <MdEdit size={16} />
-            </button>
-            <button
-              className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-red-500 text-white cursor-pointer hover:bg-red-600 whitespace-nowrap"
-              onClick={() =>
-                handleDelete(row.original.id)
-              }
-            >
-              <MdDelete size={16} />
-            </button>
+              <button
+                className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-[#3d9bc7] text-white cursor-pointer hover:bg-[#02598e] whitespace-nowrap"
+                onClick={() =>
+                  openEditModal(row.original)
+                }
+              >
+                <MdEdit size={16} />
+              </button>
+              <button
+                className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-red-500 text-white cursor-pointer hover:bg-red-600 whitespace-nowrap"
+                onClick={() =>
+                  handleDelete(row.original.id)
+                }
+              >
+                <MdDelete size={16} />
+              </button>
             </div>
           );
         },

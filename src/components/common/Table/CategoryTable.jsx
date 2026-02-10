@@ -66,12 +66,12 @@ import { IMG_BASE_URL } from '../../../config/Config';
 //   );
 // }
 
-export const CategoryTable = ({columns, adminListData, isLoading }) => {
-  
+export const CategoryTable = ({ columns, adminListData, isLoading }) => {
+
   const data = adminListData;
-  
+
   // 🔹 Step 2: Define Columns
-  
+
 
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -90,36 +90,36 @@ export const CategoryTable = ({columns, adminListData, isLoading }) => {
   // 🔹 Step 4: Render
   return (
     <div className="p-6 bg-white border border-gray-200 rounded-2xl overflow-hidden">
-<div className='border border-gray-200 rounded-2xl'>
-     <div className='mb-3 flex justify-between items-center gap-4 p-2'>
+      <div className='border border-gray-200 rounded-2xl'>
+        <div className='mb-3 flex justify-between items-center gap-4 p-2'>
 
 
-      {/* Search Box */}
-      <input
-      type='text'
-        value={globalFilter ?? ""}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-        placeholder="Search..."
-        className="px-3 py-2 w-[300px] rounded-md text-[14px] outline-none bg-blue-50 appearance-none"
-      />
-       {/* Rows per page */}
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => table.setPageSize(Number(e.target.value))}
-          className="border border-[#3d9bc7] rounded-md text-[14px] outline-none px-3 py-2"
-        >
-          {[5, 10, 20].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
-{isLoading ? (
-  <div className="text-center text-gray-500 py-10 font-medium">
-    Loading...
-  </div>
-) : table.getRowModel().rows.length === 0 ? (
+          {/* Search Box */}
+          <input
+            type='text'
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Search..."
+            className="px-3 py-2 w-[300px] rounded-md text-[14px] outline-none bg-blue-50 appearance-none"
+          />
+          {/* Rows per page */}
+          <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => table.setPageSize(Number(e.target.value))}
+            className="border border-[#3d9bc7] rounded-md text-[14px] outline-none px-3 py-2"
+          >
+            {[5, 10, 20].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+        {isLoading ? (
+          <div className="text-center text-gray-500 py-10 font-medium">
+            Loading...
+          </div>
+        ) : table.getRowModel().rows.length === 0 ? (
           <div className="text-center text-gray-500 py-10 font-medium">
             {/* {statusFilter === "active" && "No active admins found."}
             {statusFilter === "inactive" && "No inactive admins found."}
@@ -128,77 +128,77 @@ export const CategoryTable = ({columns, adminListData, isLoading }) => {
             No category available.
           </div>
         ) : (
-      <table className="w-full text-sm table-auto p-3 overflow-x-scroll ">
-        <thead className="bg-gray-100 border-y border-gray-200">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  onClick={header.column.getToggleSortingHandler()}
-                  className={`p-3 cursor-pointer ${
-                        header.column.columnDef.header === "Status"
-                          ? "text-center"
-                          : "text-left"
-                      }`}
-                >
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                  {{
-                    asc: " 🔼",
-                    desc: " 🔽",
-                  }[header.column.getIsSorted()] ?? null}
-                </th>
+          <table className="w-full text-sm table-auto p-3 overflow-x-scroll ">
+            <thead className="bg-gray-100 border-y border-gray-200">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler()}
+                      className={`p-3 cursor-pointer ${header.column.columnDef.header === "Status"
+                        ? "text-center"
+                        : header.column.columnDef.header === "Action" || header.column.columnDef.header === "S.N"
+                          ? "text-center" : "text-left"
+                        }`}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {{
+                        asc: " 🔼",
+                        desc: " 🔽",
+                      }[header.column.getIsSorted()] ?? null}
+                    </th>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </thead>
+            </thead>
 
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} 
-            className="border-b border-b-[#E0E0E0] hover:bg-gray-50">
-              {row.getVisibleCells().map((cell) => (
-                
-                <td key={cell.id} className={`p-3 ${
-                        cell.column.columnDef.header === "Status"
-                          ? "text-center"
-                          : "text-left"
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id}
+                  className="border-b border-b-[#E0E0E0] hover:bg-gray-50">
+                  {row.getVisibleCells().map((cell) => (
+
+                    <td key={cell.id} className={`p-3 ${cell.column.columnDef.header === "Status"
+                      ? "text-center"
+                      : cell.column.columnDef.header === "Action" || cell.column.columnDef.header === "S.N"
+                        ? "text-center flex justify-center" : "text-left"
                       }`}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
         )}
 
-      {/* Pagination Controls */}
-      <div className="flex justify-end items-center mt-4 p-2">
-        <div className='flex gap-2'>
-                  <button
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                    className="px-2 py-1 "
-                  >
-                    <FaCaretLeft />
-                  </button>
-                  <button
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                    className="px-2 py-1"
-                  >
-                    <FaCaretRight />
-                  </button>
-                </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-end items-center mt-4 p-2">
+          <div className='flex gap-2'>
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="px-2 py-1 "
+            >
+              <FaCaretLeft />
+            </button>
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="px-2 py-1"
+            >
+              <FaCaretRight />
+            </button>
+          </div>
 
-        <span className='text-[14px]'>
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
-        </span>
+          <span className='text-[14px]'>
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </span>
 
-       
-      </div>
+
+        </div>
       </div>
     </div>
   );

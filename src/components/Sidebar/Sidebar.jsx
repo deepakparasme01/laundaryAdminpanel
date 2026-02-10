@@ -1,13 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaChevronDown, FaCog } from "react-icons/fa";
+import { FaChevronDown } from "react-icons/fa";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
-import DesignServicesIcon from '@mui/icons-material/DesignServices';
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import DesignServicesIcon from "@mui/icons-material/DesignServices";
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
+import ProductionQuantityLimitsOutlinedIcon from '@mui/icons-material/ProductionQuantityLimitsOutlined';
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import MiscellaneousServicesOutlinedIcon from '@mui/icons-material/MiscellaneousServicesOutlined';
+import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
+import TimeToLeaveOutlinedIcon from '@mui/icons-material/TimeToLeaveOutlined';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
+import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
+import ViewCarouselOutlinedIcon from '@mui/icons-material/ViewCarouselOutlined';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import MapIcon from '@mui/icons-material/Map';
 
-import logo from "../../assets/images/laundry-logo.png"
+import logo from "../../assets/images/laundry-logo.png";
 /* 🔹 Recursive Sidebar Item */
 const SidebarItem = ({
   item,
@@ -41,7 +58,7 @@ const SidebarItem = ({
   };
 
   return (
-    <li className={`text-sm ${isMain ? 'mx-4' : ""} rounded-sm group relative`}>
+    <li className={`text-sm ${isMain ? "mx-4" : ""} rounded-sm group relative`}>
       {item.dropdown ? (
         <div
           onClick={handleClick}
@@ -137,105 +154,74 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           : []),
       ],
     },
+
     {
       section: "",
       items: [
         {
-          name: "Admin Management",
+          name: "Orders",
+          icon: <ShoppingBagOutlinedIcon />,
+          link: "order_list",
+          dropdown: false,
+        },
+        {
+          name: "Product Manage",
+          icon: <Inventory2OutlinedIcon />,
+          link: "#",
+          dropdown: true,
+          subItems: [
+            { name: "Category", link: "category_list", dropdown: false, icon: <CategoryOutlinedIcon className="w-4 h-4" /> },
+            { name: "Subcategory", link: "subcategory_list", dropdown: false, icon: <ClassOutlinedIcon className="w-4 h-4" /> },
+            { name: "Products", link: "products", dropdown: false, icon: <ProductionQuantityLimitsOutlinedIcon className="w-4 h-4" /> },
+            { name: "Coupon", link: "coupons", dropdown: false, icon: <LocalOfferOutlinedIcon className="w-4 h-4" /> },
+          ],
+        },
+        {
+          name: "App Banners",
+          icon: <ViewCarouselOutlinedIcon className="w-4 h-4" />,
+          link: "banners",
+          dropdown: false,
+        },
+        {
+          name: "Service charge",
+          icon: <MiscellaneousServicesOutlinedIcon />,
+          link: "services",
+          dropdown: false,
+          subItems: [{ name: "Service", link: "services", dropdown: false }],
+        },
+        {
+          name: "Drivers",
+          icon: <LocalShippingOutlinedIcon />,
+          link: "driver_list",
+          dropdown: false,
+        },
+        {
+          name: "Customers",
+          icon: <PeopleAltOutlinedIcon />,
+          link: "customer_list",
+          dropdown: false,
+        },
+        
+      ],
+      border: true,
+    },
+    {
+      section: "",
+      items: [
+        {
+          name: "Admin Manage",
           icon: <AdminPanelSettingsIcon className="w-4 h-4" />,
           link: "#",
           dropdown: true,
           subItems: [
-            { name: "Admins", link: "admin_list", dropdown: false },
-            { name: "managers", link: "manager_list", dropdown: false },
-            // { name: "Add Admin", link: "#", dropdown: false },
+            { name: "Admins", link: "admin_list", dropdown: false, icon: <AdminPanelSettingsIcon className="w-4 h-4" /> },
+            { name: "managers", link: "manager_list", dropdown: false, icon: <PeopleAltOutlinedIcon className="w-4 h-4" /> },
+          ],
+        },
+      ],
+      border: true,
+    },
 
-          ],
-        },
-      ],
-      border: true,
-    },
-    {
-      section: "",
-      items: [
-        {
-          name: "Category Management",
-          icon: <CategoryOutlinedIcon />,
-          link: "#",
-          dropdown: true,
-          subItems: [
-            { name: "Category List", link: "category_list", dropdown: false },
-            { name: "Subcategory List", link: "subcategory_list", dropdown: false },
-            // { name: "Add Category", link: "#", dropdown: false },
-          ],
-        },
-      ],
-      border: true,
-    },
-    {
-      section: "",
-      items: [
-        {
-          name: "Product Manage",
-          icon: <SettingsOutlinedIcon />,
-          link: "#",
-          dropdown: true,
-          subItems: [
-            { name: "Products", link: "products", dropdown: false },
-            // { name: "Subcategory List", link: "subcategory_list", dropdown: false },
-            // { name: "Add Category", link: "#", dropdown: false },
-          ],
-        },
-      ],
-      border: true,
-    },
-    {
-      section: null,
-      items: [
-        {
-          name: "App Banners",
-          icon: <DashboardIcon className="w-4 h-4" />,
-          link: "banners",
-          dropdown: false,
-          // subItems: [{ name: "Dashboard", link: "/Dashboard" }],
-        },
-      ],
-      border: true,
-    },
-    {
-      section: "",
-      items: [
-        {
-          name: "Services",
-          icon: <DesignServicesIcon />,
-          link: "#",
-          dropdown: true,
-          subItems: [
-            { name: "Service List", link: "services", dropdown: false },
-            // { name: "Add Service", link: "add_service", dropdown: false },
-            // { name: "", link: "subcategory_list", dropdown: false },
-          ],
-        },
-      ],
-      border: true,
-    },
-    {
-      section: "",
-      items: [
-        {
-          name: "Coupons",
-          icon: <DesignServicesIcon />,
-          link: "#",
-          dropdown: true,
-          subItems: [
-            { name: "Coupon List", link: "coupons", dropdown: false },
-            // { name: "Add Coupon", link: "add_service", dropdown: false },
-            // { name: "", link: "subcategory_list", dropdown: false },
-          ],
-        },
-      ],
-      border: true,
-    },
     {
       section: "",
       items: [
@@ -245,48 +231,33 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           link: "#",
           dropdown: true,
           subItems: [
-            { name: "App Setting", link: "app_setting", dropdown: false },
-            { name: "Area", link: "area", dropdown: false },
-            // { name: "Subcategory List", link: "subcategory_list", dropdown: false },
-            // { name: "Add Category", link: "#", dropdown: false },
-          ],
-        },
-      ],
-      border: true,
-    },
-    {
-      section: "",
-      items: [
-        {
-          name: "Shedules",
-          icon: <DesignServicesIcon />,
-          link: "#",
-          dropdown: true,
-          subItems: [
-            { name: "Pic-up Shedule", link: "pickup_schedule", dropdown: false },
-            { name: "Delivery Shedule", link: "delivery_schedule", dropdown: false },
-            // { name: "Terms & Conditions", link: "/terms_conditions", dropdown: false },
-            // { name: "Add Service", link: "add_service", dropdown: false },
-            // { name: "", link: "subcategory_list", dropdown: false },
-          ],
-        },
-      ],
-      border: true,
-    },
-    {
-      section: "",
-      items: [
-        {
-          name: "CMS",
-          icon: <DesignServicesIcon />,
-          link: "#",
-          dropdown: true,
-          subItems: [
-            { name: "About Us", link: "/about_us", dropdown: false },
-            { name: "Privacy & Policy", link: "/privacy_policy", dropdown: false },
-            { name: "Terms & Conditions", link: "/terms_conditions", dropdown: false },
-            // { name: "Add Service", link: "add_service", dropdown: false },
-            // { name: "", link: "subcategory_list", dropdown: false },
+            { name: "App Setting", link: "app_setting", dropdown: false, icon: <SmartphoneIcon className="w-4 h-4" /> },
+            { name: "Area", link: "area", dropdown: false, icon: <MapIcon className="w-4 h-4" /> },
+            {
+              name: "Pic-up Shedule",
+              link: "pickup_schedule",
+              dropdown: false,
+              icon: <TimeToLeaveOutlinedIcon className="w-4 h-4" />
+            },
+            {
+              name: "Delivery Shedule",
+              link: "delivery_schedule",
+              dropdown: false,
+              icon: <LocalShippingOutlinedIcon className="w-4 h-4" />
+            },
+            { name: "About Us", link: "/about_us", dropdown: false, icon: <InfoOutlinedIcon className="w-4 h-4" /> },
+            {
+              name: "Privacy & Policy",
+              link: "/privacy_policy",
+              dropdown: false,
+              icon: <SecurityOutlinedIcon className="w-4 h-4" />
+            },
+            {
+              name: "Terms & Conditions",
+              link: "/terms_conditions",
+              dropdown: false,
+              icon: <GavelOutlinedIcon className="w-4 h-4" />
+            },
           ],
         },
       ],
@@ -463,7 +434,6 @@ function Sidebar({ setIs_Toggle, isToggle }) {
     //   ],
     //   border: true,
     // },
-
   ];
 
   const handleSubClick = (link) => {

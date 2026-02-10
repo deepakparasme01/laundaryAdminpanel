@@ -137,8 +137,9 @@ export const ProductTable = ({ columns, productList, isLoading }) => {
                       key={header.id}
                       onClick={header.column.getToggleSortingHandler()}
                       className={`p-3 cursor-pointer ${header.column.columnDef.header === "Status"
-                          ? "text-center"
-                          : "text-left"
+                        ? "text-center"
+                        : header.column.columnDef.header === "Action" || header.column.columnDef.header === "S.N"
+                          ? "text-center" : "text-left"
                         }`}
                     >
                       {flexRender(header.column.columnDef.header, header.getContext())}
@@ -159,8 +160,9 @@ export const ProductTable = ({ columns, productList, isLoading }) => {
                   {row.getVisibleCells().map((cell) => (
 
                     <td key={cell.id} className={`p-3 ${cell.column.columnDef.header === "Status"
-                        ? "text-center"
-                        : "text-left"
+                      ? "text-center"
+                      : cell.column.columnDef.header === "Action" || cell.column.columnDef.header === "S.N"
+                        ? "text-center flex justify-center" : "text-left"
                       }`}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>

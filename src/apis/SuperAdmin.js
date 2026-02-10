@@ -204,3 +204,40 @@ export const areaStatusUpdate = (body, id) => apiRequest(`superadmin/area-status
 export const deleteArea = (deleteId) => apiRequest(`superadmin/area-delete/${deleteId}`, "DELETE", null, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });
+
+// Order Apis
+export const getOrderList = () => apiRequest("superadmin/order-list", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const getOrderDetail = (body) => apiRequest("superadmin/order-detail", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const updateOrderStatus = (body) => apiRequest("superadmin/order-status", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const assignDriver = (body) => apiRequest("superadmin/order-driver", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const getDrivers = (status) => {
+  const url = status ? `superadmin/driver-list?status=${status}` : "superadmin/driver-list";
+  return apiRequest(url, "GET", null, {
+    Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+  });
+};
+
+export const addDriver = (formData) => apiRequest("superadmin/driver-add", "POST", formData, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+  "Content-Type": "multipart/form-data",
+});
+
+export const updateUserStatus = (body) => apiRequest("superadmin/user-status", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const getCustomerList = () => apiRequest("superadmin/user-list", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});

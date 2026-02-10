@@ -26,7 +26,11 @@ export const Services = () => {
 
     const columns = useMemo(
         () => [
-
+            {
+                header: "S.N",
+                cell: (info) => <span>{info.row.index + 1}</span>,
+                size: 50,
+            },
             { header: "Name", accessorKey: "name" },
             // {
             //     header: "Thumbnail",
@@ -48,10 +52,10 @@ export const Services = () => {
                     const status = info.row.original.status;
 
                     const statusColor =
-                        status === 1
+                        status == 1
                             ? "bg-green-100 text-green-600"
-                            : status === 0
-                                ? "bg-yellow-100 text-yellow-600"
+                            : status == 0
+                                ? "bg-red-100 text-red-600"
                                 : "bg-red-100 text-red-600";
 
                     return (
@@ -234,7 +238,7 @@ export const Services = () => {
                 <BreadcrumbsNav customTrail={[{ label: "Services", path: "/products" }]} />
                 <div className="flex justify-between items-center">
 
-                    <PageTitle title={"All Services"} />
+                    <PageTitle title={"Service Charge"} />
                     <button
                         className="bg-[#3d9bc7] text-white cursor-pointer px-4 py-2 rounded hover:bg-[#02598e] text-[12px]"
                         // onClick={openAddModal}

@@ -26,7 +26,11 @@ export const Coupons = () => {
 
     const columns = useMemo(
         () => [
-
+            {
+                header: "S.N",
+                cell: (info) => <span>{info.row.index + 1}</span>,
+                size: 50,
+            },
             { header: "Coupon Code", accessorKey: "code" },
             // {
             //     header: "Thumbnail",
@@ -76,12 +80,12 @@ export const Coupons = () => {
                         <div className="flex gap-2 justify-start">
                             <button
                                 className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-[#3d9bc7] text-white cursor-pointer hover:bg-[#02598e] whitespace-nowrap"
-                              onClick={() =>{
-                                const id = row.original.id
-                                // openEditModal(row.original)
-                                navigate(`/update_coupon/${id}`);
-                              }
-                              }
+                                onClick={() => {
+                                    const id = row.original.id
+                                    // openEditModal(row.original)
+                                    navigate(`/update_coupon/${id}`);
+                                }
+                                }
                             >
                                 <MdEdit size={16} />
                             </button>
@@ -237,8 +241,8 @@ export const Coupons = () => {
                     <PageTitle title={"Coupons"} />
                     <button
                         className="bg-[#3d9bc7] text-white cursor-pointer px-4 py-2 rounded hover:bg-[#02598e] text-[12px]"
-                    // onClick={openAddModal}
-                    onClick={() => navigate("/add_coupon")}
+                        // onClick={openAddModal}
+                        onClick={() => navigate("/add_coupon")}
                     >
                         <span className="font-bold">+ </span>ADD NEW COUPON
                     </button>

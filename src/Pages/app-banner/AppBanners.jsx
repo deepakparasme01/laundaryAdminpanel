@@ -20,6 +20,11 @@ export const AppBanners = () => {
     const columns = useMemo(
         () => [
 
+            {
+                header: "S.N",
+                cell: (info) => <span>{info.row.index + 1}</span>,
+                size: 50,
+            },
             { header: "Title", accessorKey: "title" },
             {
                 header: "Image",

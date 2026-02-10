@@ -94,15 +94,15 @@ export const AddService = () => {
             submitData.append("extra_charge", formdata?.extracharge);
             submitData.append("description", formdata?.description);
             let response;
-            if(srId){
-            response = await updateService(submitData, srId);
+            if (srId) {
+                response = await updateService(submitData, srId);
 
-            }else{
-            response = await addservice(submitData);
+            } else {
+                response = await addservice(submitData);
 
             }
             console.log("service Api Response:", response);
-            
+
             if (response?.status == 200) {
                 toast.success(response?.message);
                 // setFormdata({
@@ -110,7 +110,7 @@ export const AddService = () => {
                 //     extracharge: "",
                 //     description: "",
                 // });
-                // navigate("/services");
+                navigate("/services");
             }
             else if (response?.response?.data?.status == 401) {
                 toast.error(response?.response?.data?.message);

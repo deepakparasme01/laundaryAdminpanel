@@ -27,7 +27,11 @@ export const Products = () => {
 
     const columns = useMemo(
         () => [
-
+            {
+                header: "S.N",
+                cell: (info) => <span>{info.row.index + 1}</span>,
+                size: 50,
+            },
             { header: "Name", accessorKey: "name" },
             {
                 header: "Thumbnail",
@@ -77,9 +81,9 @@ export const Products = () => {
                         <div className="flex gap-2 justify-start">
                             <button
                                 className="flex items-center gap-1 justify-center w-8 h-8 rounded-lg bg-[#3d9bc7] text-white cursor-pointer hover:bg-[#02598e] whitespace-nowrap"
-                              onClick={() =>
-                                openEditModal(row.original)
-                              }
+                                onClick={() =>
+                                    openEditModal(row.original)
+                                }
                             >
                                 <MdEdit size={16} />
                             </button>
@@ -235,7 +239,7 @@ export const Products = () => {
                     <PageTitle title={"All Products"} />
                     <button
                         className="bg-[#3d9bc7] text-white cursor-pointer px-4 py-2 rounded hover:bg-[#02598e] text-[12px]"
-                    onClick={openAddModal}
+                        onClick={openAddModal}
                     // onClick={() => navigate("/add_category")}
                     >
                         <span className="font-bold">+ </span>ADD NEW PRODUCT

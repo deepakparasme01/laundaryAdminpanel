@@ -53,10 +53,10 @@ export const PicUp_Shedules = () => {
                     const status = info.row.original.is_closed;
 
                     const statusColor =
-                        status === 1
+                        status == 0
                             ? "bg-green-100 text-green-600"
-                            : status === 0
-                                ? "bg-yellow-100 text-yellow-600"
+                            : status == 1
+                                ? "bg-red-100 text-red-600"
                                 : "bg-red-100 text-red-600";
 
                     return (

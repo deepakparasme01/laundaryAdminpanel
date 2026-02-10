@@ -193,6 +193,11 @@ const Area = () => {
     };
 
     const columns = useMemo(() => [
+        {
+            header: "S.N",
+            cell: (info) => <span>{info.row.index + 1}</span>,
+            size: 50,
+        },
         { header: "Area Name", accessorKey: "area_name" },
         {
             header: "Status", accessorKey: "status",

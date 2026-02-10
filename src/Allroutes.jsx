@@ -29,6 +29,11 @@ import PublicRoute from "./PublicRoutes";
 import { PicUp_Shedules } from "./Pages/shedule/picup-shedule/PicUp_Shedules";
 import { Delivery_Shedules } from "./Pages/shedule/delivery-shedule/Delivery_Shedules";
 import Area from "./Pages/settings/Area";
+import { OrderList } from "./Pages/orders/OrderList";
+import { DriverList } from "./Pages/driver/DriverList";
+import { CustomerList } from "./Pages/customer/CustomerList";
+
+import { OrderDetails } from "./Pages/orders/OrderDetails";
 
 const Allroutes = () => {
   const [authData, setAuthData] = useState(() =>
@@ -80,6 +85,11 @@ const Allroutes = () => {
 
               <Route path="/pickup_schedule" element={<PicUp_Shedules />} />
               <Route path="/delivery_schedule" element={<Delivery_Shedules />} />
+
+              <Route path="/order_list" element={<OrderList />} />
+              <Route path="/order_detail/:id" element={<OrderDetails />} />
+              <Route path="/driver_list" element={<DriverList />} />
+              <Route path="/customer_list" element={<CustomerList />} />
 
 
 
