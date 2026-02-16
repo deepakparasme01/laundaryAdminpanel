@@ -309,3 +309,7 @@ export const getUserDetails = (body) => apiRequest("superadmin/user-detail", "PO
 export const getNotificationList = () => apiRequest("superadmin/notification-list", "GET", null, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });
+
+export const getDashboardData = () => apiRequest("superadmin/dashboard-data", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});

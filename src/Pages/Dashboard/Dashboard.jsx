@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import PageTitle from "../../components/PageTitle/PageTitle";
 import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNav";
 import {
@@ -14,530 +14,412 @@ import {
   BarChart,
   Bar,
   Legend,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import {
-  FiCoffee,
-  FiFileText,
-  FiUsers,
+  FiShoppingBag,
   FiDollarSign,
-  FiChevronDown,
+  FiUsers,
+  FiTruck,
+  FiActivity,
+  FiTrendingUp,
 } from "react-icons/fi";
+import { getDashboardData } from "../../apis/SuperAdmin";
 
-import image1 from "../../assets/images/pizza1.jpg";
-import image2 from "../../assets/images/pizza2.jpg";
-import image3 from "../../assets/images/tuna1.jpg";
-import tuna2 from "../../assets/images/tuna2.jpg";
-import pizza3 from "../../assets/images/pizza3.jpg";
-import pizza4 from "../../assets/images/pizza4.jpg";
-import pizza1 from "../../assets/images/pizza1.jpg";
-import pizza2 from "../../assets/images/pizza2.jpg";
-
-const SPARK_MENUS = [10, 18, 14, 22, 19, 30, 24, 28, 22, 26, 20, 24].map(
-  (v, i) => ({ i, v })
-);
-const SPARK_ORDERS = [24, 28, 20, 34, 30, 26, 32, 18, 22, 20, 16, 24].map(
-  (v, i) => ({ i, v })
-);
-const SPARK_CUSTOMERS = [12, 20, 26, 22, 28, 24, 20, 18, 22, 16, 14, 10].map(
-  (v, i) => ({ i, v })
-);
-const SPARK_INCOME = [18, 16, 22, 24, 28, 26, 30, 34, 28, 32, 30, 36].map(
-  (v, i) => ({ i, v })
-);
-
-// Revenue + Profit series for filters
-const REVENUE_DATA = {
-  Monthly: [
-    { name: "Jan", revenue: 12, profit: 8 },
-    { name: "Feb", revenue: 30, profit: 16 },
-    { name: "Mar", revenue: 35, profit: 22 },
-    { name: "Apr", revenue: 32, profit: 18 },
-    { name: "May", revenue: 34, profit: 16 },
-    { name: "Jun", revenue: 52, profit: 38 },
-    { name: "Jul", revenue: 40, profit: 28 },
-  ],
-  Weekly: [
-    { name: "Mon", revenue: 12, profit: 8 },
-    { name: "Tue", revenue: 20, profit: 10 },
-    { name: "Wed", revenue: 25, profit: 12 },
-    { name: "Thu", revenue: 30, profit: 14 },
-    { name: "Fri", revenue: 22, profit: 12 },
-    { name: "Sat", revenue: 28, profit: 18 },
-    { name: "Sun", revenue: 18, profit: 10 },
-  ],
-  Today: [
-    { name: "Morning", revenue: 10, profit: 6 },
-    { name: "Afternoon", revenue: 15, profit: 8 },
-    { name: "Evening", revenue: 20, profit: 12 },
-    { name: "Night", revenue: 12, profit: 6 },
-  ],
+// Brand Colors
+const COLORS = {
+  primary: "#3d9bc7",
+  secondary: "#6366f1",
+  success: "#10b981",
+  warning: "#f59e0b",
+  danger: "#ef4444",
+  info: "#3b82f6",
+  dark: "#1f2937",
+  light: "#f3f4f6",
+  grid: "#e5e7eb",
 };
 
-// Customers + Loss series for filters
-const CUSTOMER_DATA = {
-  Monthly: [
-    { name: "01", customers: 35, loss: -15 },
-    { name: "02", customers: 40, loss: -10 },
-    { name: "03", customers: 50, loss: -20 },
-    { name: "04", customers: 60, loss: -25 },
-    { name: "05", customers: 75, loss: -35 },
-    { name: "06", customers: 40, loss: -22 },
-    { name: "07", customers: 70, loss: -15 },
-    { name: "08", customers: 20, loss: -30 },
-    { name: "09", customers: 40, loss: -18 },
-    { name: "10", customers: 55, loss: -28 },
-    { name: "11", customers: 70, loss: -14 },
-    { name: "12", customers: 50, loss: -26 },
-    { name: "13", customers: 20, loss: -20 },
-    { name: "14", customers: 60, loss: -22 },
-    { name: "15", customers: 30, loss: -10 },
-    { name: "16", customers: 50, loss: -32 },
-    { name: "17", customers: 40, loss: -12 },
-    { name: "18", customers: 72, loss: -30 },
-    { name: "19", customers: 28, loss: -20 },
-    { name: "20", customers: 18, loss: -16 },
-  ],
-  Weekly: [
-    { name: "Mon", customers: 20, loss: -5 },
-    { name: "Tue", customers: 25, loss: -8 },
-    { name: "Wed", customers: 30, loss: -10 },
-    { name: "Thu", customers: 22, loss: -6 },
-    { name: "Fri", customers: 28, loss: -12 },
-    { name: "Sat", customers: 32, loss: -8 },
-    { name: "Sun", customers: 18, loss: -5 },
-  ],
-  Today: [
-    { name: "Morning", customers: 12, loss: -4 },
-    { name: "Afternoon", customers: 18, loss: -6 },
-    { name: "Evening", customers: 25, loss: -8 },
-    { name: "Night", customers: 15, loss: -5 },
-  ],
-};
-
-// Recent reviews (static demo data with timestamps so sorting works)
-const REVIEWS = [
-  {
-    id: "r1",
-    menu: "Mozarella Pizza",
-    orderId: "#0010299",
-    reviewer: "Kinda Alexa",
-    rating: 5,
-    sentiment: "accpected",
-    img: pizza3,
-    // ISO strings make sorting reliable
-    date: "2025-08-22T14:20:00+05:30",
-  },
-  {
-    id: "r2",
-    menu: "Sweet Cheezy Pizza",
-    orderId: "#0010235",
-    reviewer: "Peter Parkur",
-    rating: 2,
-    sentiment: "pending",
-    img: pizza2,
-    date: "2025-08-20T19:05:00+05:30",
-  },
-  {
-    id: "r3",
-    menu: "Tuna Soup Spinach",
-    orderId: "#0010237",
-    reviewer: "Jimmy Kueai",
-    rating: 4,
-    sentiment: "denied",
-    img: tuna2,
-    date: "2025-08-21T09:45:00+05:30",
-  },
-  // A couple more so sort differences are visible
-  {
-    id: "r4",
-    menu: "Italiano Pizza with Garlic",
-    orderId: "#0010308",
-    reviewer: "Ria Sen",
-    rating: 5,
-    sentiment: "pending",
-    img: pizza4,
-    date: "2025-08-24T16:10:00+05:30",
-  },
-  {
-    id: "r5",
-    menu: "Watermelon Juice with Ice",
-    orderId: "#0010311",
-    reviewer: "Aman Verma",
-    rating: 4,
-    sentiment: "accpected",
-    img: pizza1,
-    date: "2025-08-23T11:30:00+05:30",
-  },
+const CHART_COLORS = [
+  "#3d9bc7",
+  "#6366f1",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#ec4899",
 ];
 
-/***************************
- * UI SUB-COMPONENTS
- ***************************/
-const FilterPills = ({
-  active,
-  onChange,
-  labels = ["Monthly", "Weekly", "Today"],
-}) => (
-  <div className="inline-flex items-center rounded-full bg-gray-100 p-1">
-    {labels.map((label) => (
-      <button
-        key={label}
-        onClick={() => onChange(label)}
-        className={`px-3 py-1 text-sm rounded-full transition  cursor-pointer ${
-          active === label
-            ? "bg-gray-800 text-white"
-            : "text-gray-600 hover:text-gray-900"
-        }`}
-        type="button"
-      >
-        {label}
-      </button>
-    ))}
-  </div>
-);
+const ORDER_STATUS_MAPPING = {
+  1: "New",
+  2: "Pick up",
+  3: "In Wash",
+  4: "Drying/Folding",
+  5: "Out for Delivery",
+  6: "Delivered",
+  7: "Cancelled",
+};
 
-const DropdownPill = ({ label, onChange }) => (
-  <div className="relative ">
-    <select
-      value={label}
-      onChange={(e) => onChange(e.target.value)}
-      className="appearance-none bg-white border rounded-full px-4 py-2 text-sm pr-8 cursor-pointer"
-    >
-      <option>Monthly</option>
-      <option>Weekly</option>
-      <option>Today</option>
-    </select>
-    <FiChevronDown className="absolute right-2 top-2.5 text-gray-500 pointer-events-none" />
-  </div>
-);
-
-const StatCard = React.memo(function StatCard({
-  title,
-  value,
-  change,
-  changeType,
-  Icon,
-  data,
-  gid,
-  brand,
-}) {
-  return (
-    <div
-      className="bg-white rounded-2xl shadow-md p-4 border-l-4"
-      style={{ borderLeftColor: brand }}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold leading-none">{value}</h3>
-            <span
-              className={`text-sm ${
-                changeType === "up" ? "text-green-600" : "text-red-500"
-              }`}
-            >
-              {change}
+const StatCard = ({ title, value, icon: Icon, color, subValue, subLabel }) => (
+  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+        <h3 className="text-3xl font-bold text-gray-800 tracking-tight">{value}</h3>
+        {subValue && (
+          <p className="mt-2 text-xs flex items-center gap-1">
+            <span className="text-green-500 font-semibold bg-green-50 px-1.5 py-0.5 rounded-md">
+              {subValue}
             </span>
-          </div>
-          <p className="mt-2 text-gray-600">{title}</p>
-        </div>
-        <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center">
-          <Icon color={brand} size={20} />
-        </div>
+            <span className="text-gray-400">{subLabel}</span>
+          </p>
+        )}
+      </div>
+      <div
+        className={`p-3 rounded-xl flex items-center justify-center shadow-sm`}
+        style={{ backgroundColor: `${color}15`, color: color }}
+      >
+        <Icon size={24} />
       </div>
     </div>
-  );
-});
+  </div>
+);
 
 export default function Dashboard() {
-  const BRAND = "#3d9bc7"; // theme color
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
 
-  const [revenueFilter, setRevenueFilter] = useState("Monthly");
-  const [customerFilter, setCustomerFilter] = useState("Monthly");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await getDashboardData();
+        // handling structure from apiRequest wrapper
+        if (response && response.status === 200) {
+          // Sometimes the data is directly in response.data or response is the data object
+          // based on ApiService, response is response.data from axios.
+          if (response.data) {
+            setData(response.data);
+          } else {
+            setData(response);
+          }
+        } else {
+          // Fallback
+          if (response?.kpis) {
+            setData(response);
+          } else {
+            throw new Error(response?.message || "Failed to fetch data");
+          }
+        }
+      } catch (err) {
+        console.error("Dashboard Fetch Error:", err);
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Review sort (Newest/Oldest)
-  const [reviewsSort, setReviewsSort] = useState("Newest");
+    fetchData();
+  }, []);
 
-  // Derived series from static pools
-  const revenueSeries = useMemo(
-    () => REVENUE_DATA[revenueFilter] || [],
-    [revenueFilter]
-  );
-  const customerSeries = useMemo(
-    () => CUSTOMER_DATA[customerFilter] || [],
-    [customerFilter]
-  );
+  // Prepare Chart Data
+  const orderTrendData = useMemo(() => {
+    return data?.ordersAnalytics?.ordersTrend.map(item => ({
+      date: item.date,
+      Orders: parseInt(item.count)
+    })) || [];
+  }, [data]);
 
-  // Sort reviews based on choice (static data, but dynamic ordering)
-  const sortedReviews = useMemo(() => {
-    const copy = [...REVIEWS];
-    copy.sort((a, b) => {
-      const da = new Date(a.date).getTime();
-      const db = new Date(b.date).getTime();
-      return reviewsSort === "Newest" ? db - da : da - db;
-    });
-    return copy;
-  }, [reviewsSort]);
+  const revenueTrendData = useMemo(() => {
+    return data?.revenueAnalytics?.revenueTrend.map(item => ({
+      date: item.date,
+      Revenue: parseFloat(item.amount)
+    })) || [];
+  }, [data]);
+
+  const orderStatusData = useMemo(() => {
+    return data?.ordersAnalytics?.orderStatusBreakdown.map((item) => ({
+      name: ORDER_STATUS_MAPPING[item.order_status] || `Status ${item.order_status}`,
+      value: parseInt(item.count),
+    })) || [];
+  }, [data]);
+
+  const revenueByServiceData = useMemo(() => {
+    return data?.revenueAnalytics?.revenueByService.map(item => ({
+      name: item.category_name,
+      value: parseFloat(item.revenue)
+    })) || [];
+  }, [data]);
+
+  const formattedRevenue = useMemo(() => {
+    if (!data?.kpis?.totalRevenue) return "₹0";
+    // Basic formatting if Intl not desired, but Intl is better for currency
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(data.kpis.totalRevenue);
+  }, [data]);
+
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-t-transparent border-[#3d9bc7] rounded-full animate-spin"></div>
+          <p className="text-gray-500 font-medium">Loading Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-500 bg-red-50 rounded-xl m-6 border border-red-200">
+        <p className="font-bold">Error loading dashboard</p>
+        <p>{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6  main main_page min-h-screen duration-800 ease-in-out">
-      <BreadcrumbsNav />
-      <PageTitle title={"DashBoard"} />
-      {/* Top KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-6 mt-4">
+    <div className="p-6 main main_page min-h-screen bg-gray-50/50">
+      <div className="mb-6">
+        <BreadcrumbsNav />
+        <PageTitle title="Dashboard Overview" />
+      </div>
+
+      {/* KPI Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
-          title="Menus"
-          value="56"
-          changeType="up"
-          Icon={FiCoffee}
-          gid="menus"
-          brand={BRAND}
+          title="Total Orders"
+          value={data?.kpis?.totalOrders || 0}
+          icon={FiShoppingBag}
+          color={COLORS.primary}
+          subValue={data?.kpis?.newOrders ? `+${data.kpis.newOrders}` : "0"}
+          subLabel="New Orders"
         />
         <StatCard
-          title="Reviews"
-          value="785"
-          changeType="up"
-          Icon={FiFileText}
-          gid="orders"
-          brand={BRAND}
+          title="Total Revenue"
+          value={formattedRevenue}
+          icon={FiDollarSign}
+          color={COLORS.success}
+          subValue={`₹${data?.kpis?.todayRevenue || 0}`}
+          subLabel="Today's Revenue"
         />
         <StatCard
-          title="Users"
-          value="56"
-          changeType="down"
-          Icon={FiUsers}
-          gid="customers"
-          brand={BRAND}
+          title="Active Customers"
+          value={data?.kpis?.activeCustomers || 0}
+          icon={FiUsers}
+          color={COLORS.warning}
+          subValue={data?.customerAnalytics?.newVsReturning?.returningCustomers || 0}
+          subLabel="Returning"
         />
         <StatCard
-          title="Income"
-          value="$6231"
-          changeType="down"
-          Icon={FiDollarSign}
-          gid="income"
-          brand={BRAND}
+          title="Active Drivers"
+          value={data?.kpis?.activeDrivers || 0}
+          icon={FiTruck}
+          color={COLORS.secondary}
+          subValue={data?.driverAnalytics?.ordersPerDriver?.length || 0}
+          subLabel="Drivers with orders"
         />
       </div>
 
-      {/* Middle Graphs */}
-      {/* <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <h3 className="text-xl font-semibold">Revenue</h3>
-              <p className="text-sm text-gray-400">
-                Performance based on {revenueFilter}
-              </p>
-            </div>
-            <DropdownPill
-              label={revenueFilter}
-              onChange={(val) => setRevenueFilter(val)}
-            />
+      {/* Charts Row 1: Trends */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        {/* Order Trend */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <FiActivity className="text-blue-500" />
+              Orders Trend
+            </h3>
           </div>
-
-          <div className="grid grid-cols-2 gap-6 mt-6">
-            <div>
-              <p className="text-gray-500 text-sm">Income</p>
-              <p className="text-2xl font-extrabold">$561,623</p>
-            </div>
-            <div>
-              <p className="text-gray-500 text-sm">Expense</p>
-              <p className="text-2xl font-extrabold">$126,621</p>
-            </div>
-          </div>
-
-          <div className="mt-4 h-72 w-full">
+          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={revenueSeries}
-                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-              >
+              <AreaChart data={orderTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="grad-revenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={BRAND} stopOpacity={0.8} />
-                    <stop offset="95%" stopColor={BRAND} stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="grad-profit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#C084FC" stopOpacity={0.6} />
-                    <stop offset="95%" stopColor="#C084FC" stopOpacity={0} />
+                  <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="profit"
-                  stroke="#C084FC"
-                  fill="url(#grad-profit)"
+                <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} vertical={false} />
+                <XAxis dataKey="date" tick={{ fill: '#9ca3af', fontSize: 12 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} tickLine={false} axisLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Area
                   type="monotone"
-                  dataKey="revenue"
-                  stroke={BRAND}
-                  fill="url(#grad-revenue)"
+                  dataKey="Orders"
+                  stroke={COLORS.primary}
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorOrders)"
+                  activeDot={{ r: 6, strokeWidth: 0 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
+        </div>
 
-          <div className="mt-3 flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-block w-3 h-3 rounded-full"
-                style={{ background: "#C084FC" }}
-              ></span>
-              <span className="text-gray-600">Net Profit</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-block w-3 h-3 rounded-full"
-                style={{ background: BRAND }}
-              ></span>
-              <span className="text-gray-600">Revenue</span>
+        {/* Revenue Trend */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <FiTrendingUp className="text-green-500" />
+              Revenue Trend
+            </h3>
+          </div>
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={revenueTrendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={COLORS.success} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={COLORS.success} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} vertical={false} />
+                <XAxis dataKey="date" tick={{ fill: '#9ca3af', fontSize: 12 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} tickLine={false} axisLine={false} />
+                <Tooltip
+                  formatter={(value) => [`₹${value}`, 'Revenue']}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="Revenue"
+                  stroke={COLORS.success}
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorRevenue)"
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Row 2: Breakdown & Service Revenue */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Order Status Breakdown */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1">
+          <h3 className="text-lg font-bold text-gray-800 mb-6">Order Status</h3>
+          <div className="h-64 w-full relative">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={orderStatusData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {orderStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: '20px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none pb-8">
+              <p className="text-gray-400 text-xs">Total</p>
+              <p className="text-2xl font-bold text-gray-800">{data?.kpis?.totalOrders}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <h3 className="text-xl font-semibold">Users Map</h3>
-              <p className="text-sm text-gray-400">
-                Data based on {customerFilter}
-              </p>
-            </div>
-            <FilterPills
-              active={customerFilter}
-              onChange={(val) => setCustomerFilter(val)}
-            />
-          </div>
-
-          <div className="mt-4 h-72 w-full">
+        {/* Revenue by Service */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+          <h3 className="text-lg font-bold text-gray-800 mb-6">Revenue by Service</h3>
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={customerSeries}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                data={revenueByServiceData}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                barSize={30}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="customers" fill={BRAND} radius={[6, 6, 0, 0]} />
-                <Bar dataKey="loss" fill="#374151" radius={[6, 6, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={COLORS.grid} />
+                <XAxis type="number" tick={{ fill: '#9ca3af', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis dataKey="name" type="category" tick={{ fill: '#4b5563', fontSize: 13, fontWeight: 500 }} width={100} axisLine={false} tickLine={false} />
+                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px' }} />
+                <Bar dataKey="value" name="Revenue" radius={[0, 4, 4, 0]}>
+                  {revenueByServiceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? COLORS.primary : COLORS.secondary} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
-      </div> */}
+      </div>
 
-      {/* Bottom Section */}
-      {/* <div className="grid grid-cols-1 xl:grid-cols-2 gap-6"> */}
-        {/* Recent Reviews (with Newest/Oldest filter) */}
-        {/* <div className="bg-white p-6 rounded-2xl shadow-md">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <h3 className="text-xl font-semibold">Recent Reviews</h3>
-            <FilterPills
-              active={reviewsSort}
-              onChange={(val) => setReviewsSort(val)}
-              labels={["Newest", "Oldest"]}
-            />
+      {/* Top Customers Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-bold text-gray-800">Top Customers</h3>
+            <p className="text-sm text-gray-500">Highest spending customers</p>
           </div>
-
-          <ul className="divide-y">
-            {sortedReviews.map((r) => (
-              <li key={r.id} className="flex items-center justify-between py-4">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={r.img}
-                    alt="menu"
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="font-semibold">{r.menu}</p>
-                    <p className="text-xs text-gray-400">{r.orderId}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">{r.reviewer}</p>
-                  <p className="text-xs text-gray-400">
-                    {"⭐".repeat(r.rating)}
-                  </p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-md text-xs ${
-                    r.sentiment === "accpected"
-                      ? "bg-green-100 text-green-700"
-                      : r.sentiment === "pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-red-100 text-red-600"
-                  }`}
-                >
-                  {r.sentiment}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="text-center mt-4">
-            <a
-              href="#"
-              className="text-[color:var(--brand,#F9832B)] font-medium hover:underline"
-            >
-              View More
-            </a>
-          </div>
-        </div> */}
-
-        {/* Daily Trending Menus (static) */}
-        {/* <div className="bg-white p-6 rounded-2xl shadow-md">
-          <h3 className="text-xl font-semibold mb-2">Daily Trending Menus</h3>
-          <ul className="divide-y">
-            <li className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3">
-                <img
-                  src={image1}
-                  alt="menu"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-semibold">Watermelon juice with ice</p>
-                  <p className="text-xs text-gray-400">⭐ 4.8 avg</p>
-                </div>
-              </div>
-            </li>
-            <li className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3">
-                <img
-                  src={image2}
-                  alt="menu"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-semibold">Italiano pizza with garlic</p>
-                  <p className="text-xs text-gray-400">⭐ 4.6 avg</p>
-                </div>
-              </div>
-            </li>
-            <li className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3">
-                <img
-                  src={image3}
-                  alt="menu"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-semibold">
-                    Tuna soup spinach with himalaya
-                  </p>
-                  <p className="text-xs text-gray-400">⭐ 4.2 avg</p>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div> */}
-      {/* </div> */}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50/50">
+                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Orders</th>
+                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Total Spend</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {data?.customerAnalytics?.topCustomers?.map((customer, index) => (
+                <tr key={index} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                        {customer.name ? customer.name.charAt(0).toUpperCase() : '?'}
+                      </div>
+                      <span className="font-medium text-gray-800">{customer.name || 'Unknown'}</span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-sm text-gray-500">{customer.email || 'N/A'}</td>
+                  <td className="p-4 text-sm text-gray-600 text-center">
+                    <span className="px-2.5 py-1 rounded-full bg-gray-100 text-xs font-medium border border-gray-200">
+                      {customer.orders_count} orders
+                    </span>
+                  </td>
+                  <td className="p-4 text-sm font-bold text-gray-800 text-right">
+                    {customer.total_spend ? (
+                      `₹${customer.total_spend}`
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {(!data?.customerAnalytics?.topCustomers || data.customerAnalytics.topCustomers.length === 0) && (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-gray-400">
+                    No customer data available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
