@@ -313,3 +313,12 @@ export const getNotificationList = () => apiRequest("superadmin/notification-lis
 export const getDashboardData = () => apiRequest("superadmin/dashboard-data", "GET", null, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });
+
+export const sendNotification = (body) => apiRequest("superadmin/send-notification", "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const getAllNotifications = () => apiRequest("superadmin/all-notifications", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+

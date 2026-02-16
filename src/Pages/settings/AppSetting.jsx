@@ -3,7 +3,9 @@ import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNa
 import PageTitle from "../../components/PageTitle/PageTitle";
 import { toast } from "react-toastify";
 import { getSettingData, updateSettings } from "../../apis/SuperAdmin";
+import { fetchUserProfile, updateProfile } from "../../apis/Auth";
 import { IMG_BASE_URL } from "../../config/Config";
+import { Printer, Receipt } from "lucide-react";
 
 export const AppSetting = () => {
     const [formData, setFormData] = useState({
@@ -20,12 +22,27 @@ export const AppSetting = () => {
     const [previewHeaderLogo, setPreviewHeaderLogo] = useState(null);
     const [previewFooterLogo, setPreviewFooterLogo] = useState(null);
     const [previewFavIcon, setPreviewFavIcon] = useState(null);
+    const [printerType, setPrinterType] = useState('0');
+
+    const fetchProfileData = async () => {
+        try {
+            const response = await fetchUserProfile();
+            if (response?.status == 200) {
+                const userData = response?.data;
+                if (userData?.printer_type !== undefined && userData?.printer_type !== null) {
+                    setPrinterType(String(userData.printer_type));
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching profile data:", error);
+        }
+    };
 
     const fetchSettingData = async () => {
         try {
             const response = await getSettingData();
             console.log("settings-data", response);
-            
+
             if (response?.status == 200) {
                 const data = response?.data?.settings;
                 setFormData({
@@ -42,8 +59,8 @@ export const AppSetting = () => {
                 // setPreviewFooterLogo(data?.footer_logo || null);
                 // setPreviewFavIcon(data?.fav_icon || null);
             }
-                // const data = response?.data;
-            
+            // const data = response?.data;
+
         } catch (error) {
             console.error("Error fetching setting data:", error);
         }
@@ -51,6 +68,7 @@ export const AppSetting = () => {
 
     useEffect(() => {
         fetchSettingData();
+        fetchProfileData();
     }, []);
 
     const handleChange = (e) => {
@@ -65,7 +83,7 @@ export const AppSetting = () => {
             } else if (name === "fav_icon") {
                 setPreviewFavIcon(preview);
             }
-            
+
             setFormData({ ...formData, [name]: files[0] });
         } else {
             setFormData({ ...formData, [name]: value });
@@ -75,7 +93,25 @@ export const AppSetting = () => {
     console.log("setting-form:", formData);
     let newErrors = {};
 
-    const handleSubmit = async(e) => {
+
+
+    const handlePrinterUpdate = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('printer_type', printerType);
+            const response = await updateProfile(formData);
+            if (response?.status == 200) {
+                toast.success(response?.message || "Printer settings updated successfully");
+            } else {
+                toast.error(response?.message || "Failed to update printer settings");
+            }
+        } catch (error) {
+            console.error("Error updating printer settings:", error);
+            toast.error("An error occurred");
+        }
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.sitename) {
             newErrors.sitename = "Site name is required";
@@ -158,41 +194,41 @@ export const AppSetting = () => {
                                     <p className="text-red-500 text-sm mt-1">{errors.categoryname}</p>
                                 )} */}
                             </div>
-                             <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2">
                                 <label >Favicon</label>
                                 <input type="file" name="fav_icon" className="border border-gray-200 p-3 text-sm rounded" onChange={handleChange} />
                                 {/* {errors?.image && (
                                     <p className="text-red-500 text-sm mt-1">{errors.image}</p>
                                 )} */}
                                 {previewFavIcon ? (
-                                        <div style={{ marginTop: "0.1rem" }}>
-                                            <img
-                                                src={previewFavIcon}
-                                                alt="Preview favicon"
-                                                style={{
-                                                    width: "40px",
-                                                    height: "40px",
-                                                    objectFit: "cover",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "8px",
-                                                }}
-                                            />
-                                        </div>
-                                    ) : formData?.fav_icon ? (
-                                        <div style={{ marginTop: "0.1rem" }}>
-                                            <img
-                                                src={`${IMG_BASE_URL}${formData?.fav_icon}`}
-                                                alt="View favicon"
-                                                style={{
-                                                    width: "40px",
-                                                    height: "40px",
-                                                    objectFit: "cover",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "8px",
-                                                }}
-                                            />
-                                        </div>
-                                    ) : null}
+                                    <div style={{ marginTop: "0.1rem" }}>
+                                        <img
+                                            src={previewFavIcon}
+                                            alt="Preview favicon"
+                                            style={{
+                                                width: "40px",
+                                                height: "40px",
+                                                objectFit: "cover",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "8px",
+                                            }}
+                                        />
+                                    </div>
+                                ) : formData?.fav_icon ? (
+                                    <div style={{ marginTop: "0.1rem" }}>
+                                        <img
+                                            src={`${IMG_BASE_URL}${formData?.fav_icon}`}
+                                            alt="View favicon"
+                                            style={{
+                                                width: "40px",
+                                                height: "40px",
+                                                objectFit: "cover",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "8px",
+                                            }}
+                                        />
+                                    </div>
+                                ) : null}
 
 
                             </div>
@@ -203,34 +239,34 @@ export const AppSetting = () => {
                                     <p className="text-red-500 text-sm mt-1">{errors.image}</p>
                                 )} */}
                                 {previewHeaderLogo ? (
-                                        <div style={{ marginTop: "0.1rem" }}>
-                                            <img
-                                                src={previewHeaderLogo}
-                                                alt="Preview header logo"
-                                                style={{
-                                                    width: "80px",
-                                                    height: "80px",
-                                                    objectFit: "cover",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "8px",
-                                                }}
-                                            />
-                                        </div>
-                                    ) : formData?.header_logo ? (
-                                        <div style={{ marginTop: "0.1rem" }}>
-                                            <img
-                                                src={`${IMG_BASE_URL}${formData?.header_logo}`}
-                                                alt="View header logo"
-                                                style={{
-                                                    width: "80px",
-                                                    height: "80px",
-                                                    objectFit: "cover",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "8px",
-                                                }}
-                                            />
-                                        </div>
-                                    ) : null}
+                                    <div style={{ marginTop: "0.1rem" }}>
+                                        <img
+                                            src={previewHeaderLogo}
+                                            alt="Preview header logo"
+                                            style={{
+                                                width: "80px",
+                                                height: "80px",
+                                                objectFit: "cover",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "8px",
+                                            }}
+                                        />
+                                    </div>
+                                ) : formData?.header_logo ? (
+                                    <div style={{ marginTop: "0.1rem" }}>
+                                        <img
+                                            src={`${IMG_BASE_URL}${formData?.header_logo}`}
+                                            alt="View header logo"
+                                            style={{
+                                                width: "80px",
+                                                height: "80px",
+                                                objectFit: "cover",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "8px",
+                                            }}
+                                        />
+                                    </div>
+                                ) : null}
 
                             </div>
                             <div className="flex flex-col gap-2">
@@ -240,37 +276,37 @@ export const AppSetting = () => {
                                     <p className="text-red-500 text-sm mt-1">{errors.image}</p>
                                 )} */}
                                 {previewFooterLogo ? (
-                                        <div style={{ marginTop: "0.1rem" }}>
-                                            <img
-                                                src={previewFooterLogo}
-                                                alt="Preview footer logo"
-                                                style={{
-                                                    width: "80px",
-                                                    height: "80px",
-                                                    objectFit: "cover",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "8px",
-                                                }}
-                                            />
-                                        </div>
-                                    ) : formData?.footer_logo ? (
-                                        <div style={{ marginTop: "0.1rem" }}>
-                                            <img
-                                                src={`${IMG_BASE_URL}${formData?.footer_logo}`}
-                                                alt="View footer logo"
-                                                style={{
-                                                    width: "80px",
-                                                    height: "80px",
-                                                    objectFit: "cover",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "8px",
-                                                }}
-                                            />
-                                        </div>
-                                    ) : null}
+                                    <div style={{ marginTop: "0.1rem" }}>
+                                        <img
+                                            src={previewFooterLogo}
+                                            alt="Preview footer logo"
+                                            style={{
+                                                width: "80px",
+                                                height: "80px",
+                                                objectFit: "cover",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "8px",
+                                            }}
+                                        />
+                                    </div>
+                                ) : formData?.footer_logo ? (
+                                    <div style={{ marginTop: "0.1rem" }}>
+                                        <img
+                                            src={`${IMG_BASE_URL}${formData?.footer_logo}`}
+                                            alt="View footer logo"
+                                            style={{
+                                                width: "80px",
+                                                height: "80px",
+                                                objectFit: "cover",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "8px",
+                                            }}
+                                        />
+                                    </div>
+                                ) : null}
 
                             </div>
-                           
+
                             <div className="flex flex-col gap-2">
                                 <label className="">Short Description</label>
                                 <input type="text" name="short_description" value={formData?.short_description} placeholder="Mobile Number" className="border border-gray-200 p-3 text-sm focus:outline-none rounded" onChange={handleChange} />
@@ -293,6 +329,72 @@ export const AppSetting = () => {
                 </form>
 
             </div>
+
+            {/* Printer Selection Section */}
+            <div className="mt-6 p-6 border border-gray-200 rounded-2xl bg-white">
+                <div className="bg-[#3d9bc7] p-3 rounded-t-lg mb-6">
+                    <h2 className="text-lg font-semibold text-white">Select Printer Type</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6 p-4">
+                    {/* Regular Printer Option */}
+                    <div
+                        onClick={() => setPrinterType('0')}
+                        className={`cursor-pointer relative p-8 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-4 group ${printerType === '0'
+                            ? 'border-[#3d9bc7] bg-blue-50'
+                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                            }`}
+                        style={{ minHeight: "200px" }}
+                    >
+                        {/* Radial Selection Indicator */}
+                        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center ${printerType === '0' ? 'border-[#3d9bc7]' : 'border-gray-300'
+                            }`}>
+                            {printerType === '0' && (
+                                <div className="w-3 h-3 rounded-full bg-[#3d9bc7]" />
+                            )}
+                        </div>
+
+                        <Printer className={`w-16 h-16 ${printerType === '0' ? 'text-[#3d9bc7]' : 'text-gray-400 group-hover:text-[#3d9bc7]'}`} />
+                        <span className={`text-lg font-semibold ${printerType === '0' ? 'text-[#3d9bc7]' : 'text-gray-600'}`}>
+                            Regular Printer
+                        </span>
+                    </div>
+
+                    {/* POS Printer Option */}
+                    <div
+                        onClick={() => setPrinterType('1')}
+                        className={`cursor-pointer relative p-8 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-4 group ${printerType === '1'
+                            ? 'border-[#3d9bc7] bg-blue-50'
+                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                            }`}
+                        style={{ minHeight: "200px" }}
+                    >
+                        {/* Radial Selection Indicator */}
+                        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center ${printerType === '1' ? 'border-[#3d9bc7]' : 'border-gray-300'
+                            }`}>
+                            {printerType === '1' && (
+                                <div className="w-3 h-3 rounded-full bg-[#3d9bc7]" />
+                            )}
+                        </div>
+
+                        <Receipt className={`w-16 h-16 ${printerType === '1' ? 'text-[#3d9bc7]' : 'text-gray-400 group-hover:text-[#3d9bc7]'}`} />
+                        <span className={`text-lg font-semibold ${printerType === '1' ? 'text-[#3d9bc7]' : 'text-gray-600'}`}>
+                            Pos Printer
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex justify-end pt-4 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onClick={handlePrinterUpdate}
+                        className="bg-[#3d9bc7] hover:bg-[#02598e] text-white px-6 py-2 rounded font-medium transition-colors shadow-sm"
+                    >
+                        Save And Update
+                    </button>
+                </div>
+            </div>
+
         </div>
     );
 }

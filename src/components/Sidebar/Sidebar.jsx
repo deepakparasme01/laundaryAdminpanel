@@ -23,6 +23,8 @@ import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ViewCarouselOutlinedIcon from '@mui/icons-material/ViewCarouselOutlined';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+
 import MapIcon from '@mui/icons-material/Map';
 
 import logo from "../../assets/images/laundry-logo.png";
@@ -189,6 +191,12 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           link: "services",
           dropdown: false,
           subItems: [{ name: "Service", link: "services", dropdown: false }],
+        },
+        {
+          name: "Notifications",
+          icon: <NotificationsActiveOutlinedIcon />,
+          link: "send_notifications",
+          dropdown: false,
         },
         {
           name: "Reports",
