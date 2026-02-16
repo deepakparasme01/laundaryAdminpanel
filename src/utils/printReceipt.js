@@ -5,8 +5,8 @@ export const printReceipt = (data, printerType) => {
     const order = data || {};
     const items = data?.order_details || [];
     const user = {
-        name: data?.user_name || 'Guest',
-        phone: data?.user_phone || 'N/A',
+        name: data?.user?.name || data?.user_name || 'Guest',
+        phone: data?.user?.phone || data?.user_phone || 'N/A',
         address: data?.pickup_address || 'N/A' // Defaulting to pickup address as main address
     };
 

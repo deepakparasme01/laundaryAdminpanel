@@ -172,9 +172,9 @@ export const OrderDetails = () => {
                     <div className="space-y-4">
                         <div>
                             <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Customer info</p>
-                            <p className="text-gray-900 font-semibold">{orderData.user_name || "N/A"}</p>
-                            <p className="text-sm text-gray-500">{orderData.user_email}</p>
-                            <p className="text-sm text-gray-500">{orderData.user_phone}</p>
+                            <p className="text-gray-900 font-semibold">{orderData.user?.name || orderData.user_name || "N/A"}</p>
+                            <p className="text-sm text-gray-500">{orderData.user?.email || orderData.user_email}</p>
+                            <p className="text-sm text-gray-500">{orderData.user?.phone || orderData.user_phone}</p>
                         </div>
 
                         <div>
