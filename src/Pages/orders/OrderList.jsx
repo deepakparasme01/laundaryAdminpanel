@@ -5,12 +5,14 @@ import { MdVisibility } from "react-icons/md";
 import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNav";
 import PageTitle from "../../components/PageTitle/PageTitle";
 import { ProductTable } from "../../components/common/Table/ProductTable";
-import { getOrderList, assignDriver, getDrivers, updateOrderStatus } from "../../apis/SuperAdmin";
+import { getOrderList, assignDriver, getDrivers, updateOrderStatus, getOrderDetail } from "../../apis/SuperAdmin";
+import { printReceipt } from "../../utils/printReceipt";
 
 export const OrderList = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [orderList, setOrderList] = useState([]);
+    const [printerType, setPrinterType] = useState(0);
 
     const [isAssignDriverModalOpen, setAssignDriverModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -206,10 +208,34 @@ export const OrderList = () => {
             },
             {
                 header: "Action",
-                size: 80,
+                size: 100,
                 cell: ({ row }) => {
                     return (
-                        <div className="flex justify-center">
+                        <div className="flex justify-center gap-2">
+                            <button
+                                className="text-gray-500 hover:text-green-600 cursor-pointer p-2 rounded-full hover:bg-green-50 transition-colors"
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                        const response = await getOrderDetail({ order_id: row.original.id });
+                                        if (response?.status === 200) {
+                                            printReceipt(response.data, printerType);
+                                        } else {
+                                            toast.error("Failed to load order details for printing");
+                                        }
+                                    } catch (error) {
+                                        console.error("Print error:", error);
+                                        toast.error("Error printing receipt");
+                                    }
+                                }}
+                                title="Print Receipt"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                    <rect x="6" y="14" width="12" height="8"></rect>
+                                </svg>
+                            </button>
                             <button
                                 className="text-gray-500 hover:text-blue-600 cursor-pointer p-2 rounded-full hover:bg-blue-50 transition-colors"
                                 onClick={() => navigate(`/order_detail/${row.original.id}`)}
@@ -222,7 +248,7 @@ export const OrderList = () => {
                 },
             },
         ],
-        []
+        [printerType]
     );
 
     const fetchOrders = async (filterParams = {}) => {
@@ -231,6 +257,9 @@ export const OrderList = () => {
             const response = await getOrderList(filterParams);
             if (response?.status === 200) {
                 setOrderList(response?.data?.orders || []);
+                if (response?.data?.printer_type !== undefined) {
+                    setPrinterType(response.data.printer_type);
+                }
             } else if (response?.response?.data?.status === 401) {
                 toast.error(response?.response?.data?.message);
                 localStorage.removeItem("user_role");

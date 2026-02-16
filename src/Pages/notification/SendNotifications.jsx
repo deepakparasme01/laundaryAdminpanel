@@ -153,7 +153,7 @@ export const SendNotifications = () => {
                     <div className="flex justify-end">
                         <button
                             onClick={handleSendNotification}
-                            className="px-6 py-2 bg-[#4680ff] text-white rounded-lg hover:bg-[#3267d6] transition-colors"
+                            className="px-6 py-2 bg-[#4680ff] text-white cursor-pointer rounded-lg hover:bg-[#3267d6] transition-colors"
                         >
                             Send Message
                         </button>

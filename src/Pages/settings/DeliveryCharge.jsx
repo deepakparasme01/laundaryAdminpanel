@@ -173,7 +173,7 @@ const DeliveryCharge = () => {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className={`px-6 py-2.5 bg-[#3d9bc7] hover:bg-[#02598e] text-white font-medium rounded-lg text-sm shadow-sm transition-all focus:ring-4 focus:ring-blue-300 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`px-6 py-2.5 bg-[#3d9bc7] hover:bg-[#02598e] text-white cursor-pointer font-medium rounded-lg text-sm shadow-sm transition-all focus:ring-4 focus:ring-blue-300 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 {isSaving ? (
                                     <span className="flex items-center gap-2">

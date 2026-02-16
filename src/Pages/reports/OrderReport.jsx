@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNav";
 import PageTitle from "../../components/PageTitle/PageTitle";
-import { getOrderReport } from "../../apis/SuperAdmin";
+import { getOrderReport, getOrderDetail } from "../../apis/SuperAdmin";
+import { printReceipt } from "../../utils/printReceipt";
 
 export const OrderReport = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [reportData, setReportData] = useState([]);
+    const [printerType, setPrinterType] = useState(0);
 
     // Default dates can be empty or set to current month/week
     const [filterDates, setFilterDates] = useState({
@@ -27,6 +29,9 @@ export const OrderReport = () => {
 
             if (response?.status === 200) {
                 setReportData(response.data?.orders || []);
+                if (response?.data?.printer_type !== undefined) {
+                    setPrinterType(response.data.printer_type);
+                }
                 if ((response.data?.orders || []).length === 0) {
                     toast.info("No orders found for the selected date range.");
                 }
@@ -133,12 +138,13 @@ export const OrderReport = () => {
                                     <th className="px-6 py-4">Driver</th>
                                     <th className="px-6 py-4">Status</th>
                                     <th className="px-6 py-4 text-right">Amount</th>
+                                    <th className="px-6 py-4 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {isLoading ? (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-10 text-center">
+                                        <td colSpan="9" className="px-6 py-10 text-center">
                                             <div className="flex justify-center items-center">
                                                 <div className="w-6 h-6 border-2 border-[#3d9bc7] border-dashed rounded-full animate-spin"></div>
                                                 <span className="ml-2 text-gray-500">Loading report...</span>
@@ -187,15 +193,40 @@ export const OrderReport = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right font-medium text-gray-800">₹{order.final_amount}</td>
+                                            <td className="px-6 py-4 text-center">
+                                                <button
+                                                    className="text-gray-500 hover:text-green-600 cursor-pointer p-2 rounded-full hover:bg-green-50 transition-colors inline-flex items-center justify-center"
+                                                    onClick={async () => {
+                                                        try {
+                                                            const response = await getOrderDetail({ order_id: order.id });
+                                                            if (response?.status === 200) {
+                                                                printReceipt(response.data, printerType);
+                                                            } else {
+                                                                toast.error("Failed to load order details for printing");
+                                                            }
+                                                        } catch (error) {
+                                                            console.error("Print error:", error);
+                                                            toast.error("Error printing receipt");
+                                                        }
+                                                    }}
+                                                    title="Print Receipt"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                                        <rect x="6" y="14" width="12" height="8"></rect>
+                                                    </svg>
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (!filterDates.pickup_date && !filterDates.delivery_date) ? (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-10 text-center text-gray-500">Please choose a date range to view the report.</td>
+                                        <td colSpan="9" className="px-6 py-10 text-center text-gray-500">Please choose a date range to view the report.</td>
                                     </tr>
                                 ) : (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-10 text-center text-gray-500">No orders found for the selected criteria.</td>
+                                        <td colSpan="9" className="px-6 py-10 text-center text-gray-500">No orders found for the selected criteria.</td>
                                     </tr>
                                 )}
                             </tbody>

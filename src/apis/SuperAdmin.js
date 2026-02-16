@@ -165,7 +165,15 @@ export const updateCoupon = (body, id) => apiRequest(`superadmin/coupon-edit/${i
 });
 
 
-// pick-up shedules Apis
+// Notification Management Apis
+export const getManageNotifications = () => apiRequest("superadmin/manage-notifications", "GET", null, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
+export const updateManageNotification = (body, id) => apiRequest(`superadmin/update-manage-notification/${id}`, "POST", body, {
+  Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
+});
+
 export const getPicup_Shedules = () => apiRequest("superadmin/pickup-schedule-list", "GET", null, {
   Authorization: `Bearer ${localStorage.getItem("laundary-token")}`,
 });

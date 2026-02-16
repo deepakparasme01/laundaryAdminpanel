@@ -3,7 +3,6 @@ import BreadcrumbsNav from "../../components/common/BreadcrumbsNav/BreadcrumbsNa
 import PageTitle from "../../components/PageTitle/PageTitle";
 import { toast } from "react-toastify";
 import { getSettingData, updateSettings } from "../../apis/SuperAdmin";
-import { fetchUserProfile, updateProfile } from "../../apis/Auth";
 import { IMG_BASE_URL } from "../../config/Config";
 import { Printer, Receipt } from "lucide-react";
 
@@ -24,20 +23,6 @@ export const AppSetting = () => {
     const [previewFavIcon, setPreviewFavIcon] = useState(null);
     const [printerType, setPrinterType] = useState('0');
 
-    const fetchProfileData = async () => {
-        try {
-            const response = await fetchUserProfile();
-            if (response?.status == 200) {
-                const userData = response?.data;
-                if (userData?.printer_type !== undefined && userData?.printer_type !== null) {
-                    setPrinterType(String(userData.printer_type));
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching profile data:", error);
-        }
-    };
-
     const fetchSettingData = async () => {
         try {
             const response = await getSettingData();
@@ -55,6 +40,11 @@ export const AppSetting = () => {
                     short_description: data?.short_description || "",
                     address: data?.address || "",
                 });
+
+                if (data?.printer_type !== undefined && data?.printer_type !== null) {
+                    setPrinterType(String(data.printer_type));
+                }
+
                 // setPreviewHeaderLogo(data?.header_logo || null);
                 // setPreviewFooterLogo(data?.footer_logo || null);
                 // setPreviewFavIcon(data?.fav_icon || null);
@@ -68,7 +58,6 @@ export const AppSetting = () => {
 
     useEffect(() => {
         fetchSettingData();
-        fetchProfileData();
     }, []);
 
     const handleChange = (e) => {
@@ -99,7 +88,7 @@ export const AppSetting = () => {
         try {
             const formData = new FormData();
             formData.append('printer_type', printerType);
-            const response = await updateProfile(formData);
+            const response = await updateSettings(formData);
             if (response?.status == 200) {
                 toast.success(response?.message || "Printer settings updated successfully");
             } else {
@@ -323,7 +312,7 @@ export const AppSetting = () => {
                             </div>
                         </div>
                         <div className="mt-3">
-                            <button type="submit" className="bg-[#3d9bc7] hover:bg-[#02598e] text-white px-3 py-1 rounded ">Submit</button>
+                            <button type="submit" className="bg-[#3d9bc7] hover:bg-[#02598e] text-white cursor-pointer px-3 py-1 rounded ">Submit</button>
                         </div>
                     </div>
                 </form>
@@ -338,29 +327,6 @@ export const AppSetting = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6 p-4">
                     {/* Regular Printer Option */}
-                    <div
-                        onClick={() => setPrinterType('0')}
-                        className={`cursor-pointer relative p-8 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-4 group ${printerType === '0'
-                            ? 'border-[#3d9bc7] bg-blue-50'
-                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                            }`}
-                        style={{ minHeight: "200px" }}
-                    >
-                        {/* Radial Selection Indicator */}
-                        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center ${printerType === '0' ? 'border-[#3d9bc7]' : 'border-gray-300'
-                            }`}>
-                            {printerType === '0' && (
-                                <div className="w-3 h-3 rounded-full bg-[#3d9bc7]" />
-                            )}
-                        </div>
-
-                        <Printer className={`w-16 h-16 ${printerType === '0' ? 'text-[#3d9bc7]' : 'text-gray-400 group-hover:text-[#3d9bc7]'}`} />
-                        <span className={`text-lg font-semibold ${printerType === '0' ? 'text-[#3d9bc7]' : 'text-gray-600'}`}>
-                            Regular Printer
-                        </span>
-                    </div>
-
-                    {/* POS Printer Option */}
                     <div
                         onClick={() => setPrinterType('1')}
                         className={`cursor-pointer relative p-8 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-4 group ${printerType === '1'
@@ -377,8 +343,31 @@ export const AppSetting = () => {
                             )}
                         </div>
 
-                        <Receipt className={`w-16 h-16 ${printerType === '1' ? 'text-[#3d9bc7]' : 'text-gray-400 group-hover:text-[#3d9bc7]'}`} />
+                        <Printer className={`w-16 h-16 ${printerType === '1' ? 'text-[#3d9bc7]' : 'text-gray-400 group-hover:text-[#3d9bc7]'}`} />
                         <span className={`text-lg font-semibold ${printerType === '1' ? 'text-[#3d9bc7]' : 'text-gray-600'}`}>
+                            Regular Printer
+                        </span>
+                    </div>
+
+                    {/* POS Printer Option */}
+                    <div
+                        onClick={() => setPrinterType('0')}
+                        className={`cursor-pointer relative p-8 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-4 group ${printerType === '0'
+                            ? 'border-[#3d9bc7] bg-blue-50'
+                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                            }`}
+                        style={{ minHeight: "200px" }}
+                    >
+                        {/* Radial Selection Indicator */}
+                        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center ${printerType === '0' ? 'border-[#3d9bc7]' : 'border-gray-300'
+                            }`}>
+                            {printerType === '0' && (
+                                <div className="w-3 h-3 rounded-full bg-[#3d9bc7]" />
+                            )}
+                        </div>
+
+                        <Receipt className={`w-16 h-16 ${printerType === '0' ? 'text-[#3d9bc7]' : 'text-gray-400 group-hover:text-[#3d9bc7]'}`} />
+                        <span className={`text-lg font-semibold ${printerType === '0' ? 'text-[#3d9bc7]' : 'text-gray-600'}`}>
                             Pos Printer
                         </span>
                     </div>
@@ -388,7 +377,7 @@ export const AppSetting = () => {
                     <button
                         type="button"
                         onClick={handlePrinterUpdate}
-                        className="bg-[#3d9bc7] hover:bg-[#02598e] text-white px-6 py-2 rounded font-medium transition-colors shadow-sm"
+                        className="bg-[#3d9bc7] hover:bg-[#02598e] text-white cursor-pointer px-6 py-2 rounded font-medium transition-colors shadow-sm"
                     >
                         Save And Update
                     </button>

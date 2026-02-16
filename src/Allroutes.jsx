@@ -41,6 +41,7 @@ import { OrderReport } from "./Pages/reports/OrderReport";
 import { SendNotifications } from "./Pages/notification/SendNotifications";
 
 import { OrderDetails } from "./Pages/orders/OrderDetails";
+import ManageNotifications from "./Pages/settings/ManageNotifications";
 
 const Allroutes = () => {
   const [authData, setAuthData] = useState(() =>
@@ -79,7 +80,9 @@ const Allroutes = () => {
 
               <Route path="/app_setting" element={<AppSetting />} />
               <Route path="/area" element={<Area />} />
+              <Route path="/area" element={<Area />} />
               <Route path="/delivery_charge" element={<DeliveryCharge />} />
+              <Route path="/manage_notifications" element={<ManageNotifications />} />
 
               {/* cms routes */}
               <Route path="/about_us" element={<About_Us />} />

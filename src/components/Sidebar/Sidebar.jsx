@@ -247,6 +247,7 @@ function Sidebar({ setIs_Toggle, isToggle }) {
           dropdown: true,
           subItems: [
             { name: "App Setting", link: "app_setting", dropdown: false, icon: <SmartphoneIcon className="w-4 h-4" /> },
+            { name: "Manage Notify", link: "manage_notifications", dropdown: false, icon: <NotificationsActiveOutlinedIcon className="w-4 h-4" /> },
             { name: "Area", link: "area", dropdown: false, icon: <MapIcon className="w-4 h-4" /> },
             { name: "Delivery Charge", link: "delivery_charge", dropdown: false, icon: <LocalShippingOutlinedIcon className="w-4 h-4" /> },
             {
