@@ -96,9 +96,21 @@ export const ProductModel = ({ isOpen, onClose, product_data, mode, onSubmit, is
             if (product_data?.cat_id) {
                 fetchSubcategories(product_data?.cat_id)
             }
+        } else if (mode === "add" && isOpen) {
+            setFormdata({
+                name: "",
+                image: null,
+                category: "",
+                subcategory: "",
+                type: "",
+                price: "",
+                description: ""
+            });
+            setPreviewImage(null);
+            setErrors({});
         }
 
-    }, [mode, product_data]);
+    }, [mode, product_data, isOpen]);
 
 
     const handleChange = (e) => {
@@ -119,7 +131,7 @@ export const ProductModel = ({ isOpen, onClose, product_data, mode, onSubmit, is
             setFormdata(prev => ({
                 ...prev,
                 category: value,
-                subcategory:""
+                subcategory: ""
             }));
         } else {
             setFormdata(prev => ({
@@ -163,14 +175,14 @@ export const ProductModel = ({ isOpen, onClose, product_data, mode, onSubmit, is
     const handleModelClose = () => {
         setErrors({});
         setFormdata({
-        name: "",
-        image: null,
-        category: "",
-        subcategory: "",
-        type: "",
-        price: "",
-        description: ""
-    });
+            name: "",
+            image: null,
+            category: "",
+            subcategory: "",
+            type: "",
+            price: "",
+            description: ""
+        });
         setPreviewImage(null);
         onClose();
     }

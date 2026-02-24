@@ -85,19 +85,37 @@ export const Products = () => {
                 cell: (info) => <span>{info.row.index + 1}</span>,
                 size: 50,
             },
-            { header: "Name", accessorKey: "name" },
             {
-                header: "Thumbnail",
-                accessorKey: "image",
+                header: "Name",
+                accessorKey: "name",
                 cell: (info) => (
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                        <img src={`${IMG_BASE_URL}${info.getValue()}`} alt="avatar" width={40} style={{ borderRadius: "50%" }} className="w-full h-full object-cover" />
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                            <img
+                                src={`${IMG_BASE_URL}${info.row.original.image}`}
+                                alt={info.row.original.name}
+                                className="w-full h-full object-cover shadow-sm"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-semibold text-gray-800">{info.row.original.name}</span>
+                            <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">{info.row.original.type}</span>
+                        </div>
                     </div>
                 ),
             },
-            { header: "Type", accessorKey: "type" },
-            { header: "Price", accessorKey: "price" },
-            { header: "Description", accessorKey: "description" },
+            // {
+            //     header: "Category",
+            //     accessorKey: "category_name",
+            //     cell: (info) => <span className="text-gray-600">{info.row.original.category_name || "N/A"}</span>
+            // },
+            // {
+            //     header: "Sub Category",
+            //     accessorKey: "subcategory_name",
+            //     cell: (info) => <span className="text-gray-600">{info.row.original.subcategory_name || "N/A"}</span>
+            // },
+            { header: "Price", accessorKey: "price", cell: (info) => <span className="font-medium text-blue-600">₹{info.getValue()}</span> },
+            { header: "Description", accessorKey: "description", cell: (info) => <span className="text-gray-500 text-sm line-clamp-1">{info.getValue()}</span> },
 
             {
                 header: "Status", accessorKey: "status",
