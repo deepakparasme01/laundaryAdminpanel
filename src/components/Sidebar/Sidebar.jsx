@@ -464,7 +464,21 @@ function Sidebar({ setIs_Toggle, isToggle }) {
     if (savedActiveItem) {
       setActiveItem(savedActiveItem);
     }
-  }, []);
+
+    // Auto-open parent menu based on current path
+    filteredSidebarData.forEach((section) => {
+      section.items.forEach((item) => {
+        if (item.dropdown && item.subItems) {
+          const isSubActive = item.subItems.some(
+            (sub) => activePath === "/" + sub.link || (sub.link !== "#" && activePath.includes(sub.link))
+          );
+          if (isSubActive) {
+            setOpenMain(item.name);
+          }
+        }
+      });
+    });
+  }, [activePath]);
 
   return (
     <div className="flex">
